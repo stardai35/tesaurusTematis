@@ -1,13 +1,19 @@
 # Tesaurus Tematis Bahasa Indonesia
 
+<<<<<<< HEAD
 ## 📋 Prasyarat
+=======
+Website fullstack dengan admin panel untuk Tesaurus Bahasa Indonesia menggunakan Laravel.
+
+##  Prasyarat
+>>>>>>> 2ccbe130ad8317c146b8e51a49a0462fd75a888b
 
 - PHP >= 8.1
 - Composer
 - SQLite (atau MySQL/PostgreSQL)
 - Node.js & NPM (opsional, jika ingin compile assets)
 
-## 🔧 Instalasi
+##  Instalasi
 
 ### 1. Install Dependencies
 
@@ -51,6 +57,16 @@ php artisan migrate
 php artisan db:seed
 ```
 
+<<<<<<< HEAD
+=======
+Data awal yang akan dibuat:
+- Label
+- Word Classes 
+- Types 
+- Categories 
+- Beberapa lemma
+- User admin 
+>>>>>>> 2ccbe130ad8317c146b8e51a49a0462fd75a888b
 ### 7. Jalankan Development Server
 
 ```bash
@@ -58,6 +74,7 @@ php artisan serve
 ```
 
 Website akan berjalan di: `http://localhost:8000`
+<<<<<<< HEAD
 
 
 ## 🛠 Tech Stack
@@ -66,3 +83,5 @@ Website akan berjalan di: `http://localhost:8000`
 - **Frontend**: Blade Templates + Vanilla CSS
 - **Database**: SQLite (configurable to MySQL/PostgreSQL)
 - **Authentication**: Laravel Auth (Custom)
+=======
+>>>>>>> 2ccbe130ad8317c146b8e51a49a0462fd75a888b

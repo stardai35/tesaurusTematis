@@ -31,6 +31,9 @@ class HomeController extends Controller
             ->get();
 
         $categories = Category::query()
+            ->with(['subcategories' => function ($query) {
+                $query->orderBy('num');
+            }])
             ->orderBy('num')
             ->get(['id', 'num', 'title', 'slug']);
 

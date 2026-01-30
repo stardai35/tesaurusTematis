@@ -172,38 +172,93 @@
 
     .categories {
         background: white;
-        padding: 2rem;
+        padding: 1.5rem;
         border-radius: 12px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
 
     .category-item {
-        padding: 1.25rem;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        cursor: pointer;
-        transition: all 0.2s;
+        margin-bottom: 0.8rem;
+        border-bottom: 1px solid #f3f4f6;
+        padding-bottom: 0.8rem;
     }
 
     .category-item:last-child {
         border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
     }
 
-    .category-item:hover {
-        background: var(--bg-light);
-        padding-left: 1.75rem;
+    .category-header {
+        cursor: pointer;
+        padding: 0.3rem 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .category-header:hover .category-title {
+        color: var(--primary-blue);
     }
 
     .category-title {
-        font-weight: 600;
-        color: var(--text-dark);
+        font-weight: 700;
+        color: #1f2937;
+        font-size: 1rem;
+        transition: color 0.2s;
     }
 
     .category-arrow {
-        color: var(--text-light);
-        font-size: 1.25rem;
+        display: inline-block;
+        width: 15px;
+        margin-right: 8px;
+        transition: transform 0.2s;
+        color: #9ca3af;
+    }
+
+    .category-arrow.open {
+        transform: rotate(90deg);
+    }
+
+    .subcategories {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    .subcategories.show {
+        max-height: 5000px;
+    }
+
+    .subcategories-inner {
+        padding-left: 1.5rem;
+        margin-top: 0.3rem;
+    }
+
+    .subcategory-item {
+        margin-bottom: 0.6rem;
+    }
+
+    .subcategory-header {
+        padding: 0.2rem 0;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.95rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .articles-inner {
+        padding-left: 0;
+        margin-top: 0.2rem;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.3rem 1.5rem;
+    }
+
+    .article-item {
+        padding: 0.1rem 0;
+        font-size: 0.9rem;
+        color: #6b7280;
+        line-height: 1.5;
     }
 </style>
 @endpush
@@ -288,16 +343,53 @@
 <section class="section container">
     <h2 class="section-title">Bidang Ilmu Kata</h2>
     <div class="categories">
-        <div class="category-item">
-            <div class="category-title">I. Ukuran dan Bentuk</div>
-            <div class="category-arrow">›</div>
-        </div>
         @foreach($categories as $category)
-        <div class="category-item" onclick="window.location='{{ route('category', ['category' => $category->id]) }}'">
-            <div class="category-title">{{ $category->num ? $category->num . '. ' : '' }}{{ $category->title }}</div>
-            <div class="category-arrow">›</div>
+        <div class="category-item">
+            <div class="category-header" onclick="toggleCategory({{ $category->id }})">
+                <span class="category-arrow" id="arrow-{{ $category->id }}">▸</span>
+                <span class="category-title">{{ $category->title }}</span>
+            </div>
+            <div class="subcategories" id="subcategories-{{ $category->id }}">
+                <div class="subcategories-inner">
+                    @if($category->subcategories && $category->subcategories->count() > 0)
+                        @foreach($category->subcategories as $subcategory)
+                        <div class="subcategory-item">
+                            <div class="subcategory-header">
+                                {{ $subcategory->num }} {{ $subcategory->title }}
+                            </div>
+                            <div class="articles-inner">
+                                @if($subcategory->articles && $subcategory->articles->count() > 0)
+                                    @foreach($subcategory->articles as $article)
+                                    <div class="article-item">
+                                        {{ $article->num }}. {{ $article->title }}
+                                    </div>
+                                    @endforeach
+                                @endif
+                            </div>
+                        </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
         </div>
         @endforeach
     </div>
 </section>
+
+@push('scripts')
+<script>
+function toggleCategory(id) {
+    const sub = document.getElementById('subcategories-' + id);
+    const arrow = document.getElementById('arrow-' + id);
+    
+    if (sub.classList.contains('show')) {
+        sub.classList.remove('show');
+        arrow.classList.remove('open');
+    } else {
+        sub.classList.add('show');
+        arrow.classList.add('open');
+    }
+}
+</script>
+@endpush
 @endsection

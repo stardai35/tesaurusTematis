@@ -52,22 +52,34 @@
         </div>
 
         <h2 class="mt-12 text-center text-2xl font-semibold">Bidang Ilmu Kata</h2>
-        <div class="mt-6">
-            <div class="rounded-2xl border border-slate-100 bg-white p-4">
-                <details open>
-                    <summary class="cursor-pointer select-none text-sm font-semibold text-slate-700">
-                        I. Ukuran dan Bentuk
-                    </summary>
-                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                        @foreach($categories as $cat)
-                            <a class="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm hover:bg-slate-100"
-                               href="{{ route('tematis.category', ['bidang' => $cat->id]) }}">
-                                {{ $cat->num }}. {{ $cat->title }}
-                            </a>
-                        @endforeach
-                    </div>
-                </details>
-            </div>
+        <div class="mt-6 space-y-3">
+            @foreach($categories as $cat)
+                <div class="rounded-2xl border border-slate-100 bg-white p-4">
+                    <details {{ $loop->first ? 'open' : '' }}>
+                        <summary class="cursor-pointer select-none text-sm font-semibold text-slate-700 flex items-center justify-between">
+                            <span>{{ $cat->num }}. {{ $cat->title }}</span>
+                            <span class="text-xs text-slate-500">{{ $cat->subcategories->count() }} sub bidang</span>
+                        </summary>
+                        @if($cat->subcategories->isNotEmpty())
+                            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                @foreach($cat->subcategories as $subcat)
+                                    <a class="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm hover:bg-slate-100 transition"
+                                       href="{{ route('tematis.category', ['bidang' => $cat->id, 'subbidang' => $subcat->id]) }}">
+                                        {{ $subcat->num }}. {{ $subcat->title }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="mt-3">
+                                <a class="inline-block rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm hover:bg-slate-100 transition"
+                                   href="{{ route('tematis.category', ['bidang' => $cat->id]) }}">
+                                    Lihat semua kata dalam {{ $cat->title }}
+                                </a>
+                            </div>
+                        @endif
+                    </details>
+                </div>
+            @endforeach
         </div>
     </section>
 @endsection

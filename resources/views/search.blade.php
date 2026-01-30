@@ -125,57 +125,84 @@
     </a>
 
     <div class="search-info">
-        "{{ $query }}" - {{ $results->total() }} hasil ditemukan
+        Hasil pencarian "<strong>{{ $query }}</strong>" dari semua kelas kata.
     </div>
 
-    @if($results->count() > 0)
+    @if($articles->count() > 0)
         <div class="results-grid">
-            @foreach($results as $lemma)
-            <a href="{{ route('lemma', $lemma->slug) }}" class="result-card">
-                <div class="result-word">{{ $lemma->name }}</div>
-                <div class="result-badges">
-                    <span class="badge badge-nomina">{{ $lemma->label->name }}</span>
-                    @foreach($lemma->wordRelations->take(1) as $relation)
-                        @if($relation->wordClass)
-                            <span class="badge badge-teknologi">{{ $relation->wordClass->name }}</span>
+            @foreach($articles as $article)
+            <div class="result-card">
+                {{-- Article Title (clickable, bold) --}}
+                @php
+                    $titleRelation = $article->wordRelations->firstWhere('type_id', 2);
+                @endphp
+                @if($titleRelation && $titleRelation->lemma)
+                    <div class="result-word">
+                        <a href="{{ route('lemma', str_replace(' ', '-', strtolower($titleRelation->lemma->name))) }}" 
+                           style="color: inherit; text-decoration: none;">
+                            {{ strtoupper($titleRelation->lemma->name) }}
+                        </a>
+                    </div>
+                @endif
+
+                {{-- Article Content --}}
+                <div class="result-text" style="margin-top: 1rem; line-height: 1.8;">
+                    @php
+                        $superordinates = $article->wordRelations->where('type_id', 3);
+                        $ordinaryLemmas = $article->wordRelations->where('type_id', 1);
+                        $searchTerm = strtolower($query);
+                    @endphp
+                    
+                    {{-- Superordinates (bold, clickable, followed by colon) --}}
+                    @foreach($superordinates as $index => $relation)
+                        @if($relation->lemma)
+                            <strong>
+                                <a href="{{ route('lemma', str_replace(' ', '-', strtolower($relation->lemma->name))) }}" 
+                                   style="color: #2563eb; text-decoration: none;">
+                                    {{ $relation->lemma->name }}
+                                </a>
+                            </strong>:
+                            @if($index < $superordinates->count() - 1), @endif
+                        @endif
+                    @endforeach
+                    
+                    {{-- Ordinary Lemmas (with search term highlighted in yellow) --}}
+                    @foreach($ordinaryLemmas as $index => $relation)
+                        @if($relation->lemma)
+                            @php
+                                $lemmaName = $relation->lemma->name;
+                                $isSearchMatch = str_contains(strtolower($lemmaName), $searchTerm);
+                            @endphp
+                            
+                            @if($isSearchMatch)
+                                <span style="background-color: #fef08a; padding: 2px 4px;">
+                            @endif
+                            
+                            <a href="{{ route('lemma', str_replace(' ', '-', strtolower($lemmaName))) }}" 
+                               style="color: #1f2937; text-decoration: none;">
+                                {{ $lemmaName }}
+                            </a>
+                            
+                            @if($isSearchMatch)
+                                </span>
+                            @endif
+                            
+                            @if($index < $ordinaryLemmas->count() - 1), @endif
                         @endif
                     @endforeach
                 </div>
-                
-                @php
-                    $synonyms = $lemma->wordRelations->where('type.name', 'sinonim')->take(3);
-                    $antonyms = $lemma->wordRelations->where('type.name', 'antonim')->take(3);
-                @endphp
-                
-                @if($synonyms->count() > 0)
-                <div class="result-info">
-                    <div class="result-label">Sinonim:</div>
-                    <div class="result-text">
-                        {{ $synonyms->pluck('lemma.name')->filter()->implode(', ') }}
-                    </div>
-                </div>
-                @endif
-                
-                @if($antonyms->count() > 0)
-                <div class="result-info">
-                    <div class="result-label">Antonim:</div>
-                    <div class="result-text">
-                        {{ $antonyms->pluck('lemma.name')->filter()->implode(', ') }}
-                    </div>
-                </div>
-                @endif
-            </a>
+            </div>
             @endforeach
         </div>
 
         <div class="pagination">
-            {{ $results->links() }}
+            {{ $articles->links() }}
         </div>
     @else
         <div class="no-results">
             <div class="no-results-icon">🔍</div>
             <h2>Tidak ada hasil ditemukan</h2>
-            <p>Coba Kata Kunci Berbeda</p>
+            <p>Coba kata kunci berbeda</p>
         </div>
     @endif
 </div>

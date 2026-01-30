@@ -49,10 +49,10 @@
             @forelse($relations as $relation)
             <tr>
                 <td>{{ $relation->id }}</td>
-                <td>{{ $relation->article->title }}</td>
-                <td><strong>{{ $relation->lemma->name }}</strong></td>
-                <td>{{ $relation->wordClass->name }}</td>
-                <td><span class="badge badge-nomina">{{ $relation->type->name }}</span></td>
+                <td>{{ $relation->article ? $relation->article->title : '-' }}</td>
+                <td><strong>{{ $relation->lemma ? $relation->lemma->name : '-' }}</strong></td>
+                <td>{{ $relation->wordClass ? $relation->wordClass->name : '-' }}</td>
+                <td><span class="badge badge-nomina">{{ $relation->type ? $relation->type->name : '-' }}</span></td>
                 <td>
                     <a href="{{ route('admin.word-relations.edit', $relation) }}" class="btn btn-primary btn-sm">Edit</a>
                     <form method="POST" action="{{ route('admin.word-relations.destroy', $relation) }}" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus?')">

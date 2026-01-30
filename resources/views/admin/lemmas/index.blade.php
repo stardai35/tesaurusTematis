@@ -33,7 +33,7 @@
             <tr>
                 <td>{{ $lemma->id }}</td>
                 <td><strong>{{ $lemma->name }}</strong></td>
-                <td><span class="badge badge-nomina">{{ $lemma->label->name }}</span></td>
+                <td><span class="badge badge-nomina">{{ $lemma->label ? $lemma->label->name : '-' }}</span></td>
                 <td>
                     <a href="{{ route('admin.lemmas.edit', $lemma) }}" class="btn btn-primary btn-sm">Edit</a>
                     <form method="POST" action="{{ route('admin.lemmas.destroy', $lemma) }}" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus?')">

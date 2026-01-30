@@ -49,14 +49,9 @@ class DatabaseSeeder extends Seeder
             ['num' => 4, 'title' => 'Teknologi', 'slug' => 'teknologi'],
         ]);
 
-        // Seed example Lemma
-        DB::table('lemma')->insert([
-            ['label_id' => 1, 'name' => 'teknologi', 'name_tagged' => 'teknologi'],
-            ['label_id' => 1, 'name' => 'ilmu terapan', 'name_tagged' => 'ilmu terapan'],
-            ['label_id' => 1, 'name' => 'sistem', 'name_tagged' => 'sistem'],
-            ['label_id' => 1, 'name' => 'metode modern', 'name_tagged' => 'metode modern'],
-            ['label_id' => 3, 'name' => 'tradisional', 'name_tagged' => 'tradisional'],
-            ['label_id' => 3, 'name' => 'konvensional', 'name_tagged' => 'konvensional'],
+        // Seed Lemma dengan data yang lebih lengkap
+        $this->call([
+            LemmaSeeder::class,
         ]);
 
         // Create admin user

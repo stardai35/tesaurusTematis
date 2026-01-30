@@ -172,7 +172,9 @@
     <div class="lemma-header">
         <h1 class="lemma-title">{{ $lemma->name }}</h1>
         <div class="lemma-badges">
-            <span class="badge badge-nomina">{{ $lemma->label->name }}</span>
+            @if($lemma->label)
+                <span class="badge badge-nomina">{{ $lemma->label->name }}</span>
+            @endif
             @if($lemma->wordRelations->first() && $lemma->wordRelations->first()->wordClass)
                 <span class="badge badge-teknologi">{{ $lemma->wordRelations->first()->wordClass->name }}</span>
             @endif

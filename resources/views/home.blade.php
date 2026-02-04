@@ -262,7 +262,6 @@
     }
 </style>
 @endpush
-
 @section('content')
 <!-- Hero Section -->
 <section class="hero">

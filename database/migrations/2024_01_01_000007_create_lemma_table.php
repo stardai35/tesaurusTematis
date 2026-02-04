@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('lemma', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('label_id')->constrained('label')->onDelete('cascade');
+            $table->foreignId('label_id')->nullable()->constrained('label')->onDelete('cascade');
             $table->string('name');
             $table->string('name_tagged')->nullable();
             $table->index('name');

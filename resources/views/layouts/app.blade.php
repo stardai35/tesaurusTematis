@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Tesaurus Tematis Bahasa Indonesia')</title>
-    <meta name="description" content="@yield('description', 'Pusat padanan kata Bahasa Indonesia yang baku dan terstandar')">
-    
+    <meta name="description"
+        content="@yield('description', 'Pusat padanan kata Bahasa Indonesia yang baku dan terstandar')">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
         * {
             margin: 0;
@@ -47,7 +49,7 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
         }
 
         .header-container {
@@ -70,7 +72,7 @@
         }
 
         .logo-img {
-            height: 40px;
+            height: 50px;
         }
 
         .nav {
@@ -92,7 +94,7 @@
         }
 
         .kemendikbud-logo {
-            height: 35px;
+            height: 50px;
         }
 
         /* Main Content */
@@ -189,6 +191,7 @@
                 opacity: 0;
                 transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -216,17 +219,45 @@
                 padding: 0 1rem;
             }
         }
+
+        .img-responsive {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 6px;
+
+        }
+
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-bar .right {
+            text-align: right;
+            margin-bottom: 2rem;
+        }
+        .hero-redaksi img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    display: block;
+}
+
     </style>
 
     @stack('styles')
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
         <div class="header-container">
             <a href="{{ route('home') }}" class="logo">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/150px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png" alt="Logo" class="logo-img">
-                <span>Tesaurus Tematis</span>
+                <img src="https://aesthetic-sapphire-3vlcod9zlm.edgeone.app/tesaurus.png" alt="Logo" class="logo-img">
             </a>
             <nav class="nav">
                 <a href="{{ route('home') }}">Beranda</a>
@@ -234,7 +265,8 @@
                 <a href="{{ route('team') }}">Tim Redaksi</a>
                 <a href="{{ route('about') }}">Tentang</a>
             </nav>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/150px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png" alt="Kemendikbud" class="kemendikbud-logo">
+            <img src="https://annual-salmon-xlcimjpgpr.edgeone.app/kmedikbud%20logo%20ong.png" alt="Kemendikbud"
+                class="kemendikbud-logo">
         </div>
     </header>
 
@@ -247,10 +279,12 @@
     <footer class="footer">
         <div class="footer-container">
             <p>&copy; 2024 Tesaurus Bahasa Indonesia. Semua hak dilindungi.</p>
-            <p>Data tesaurus diambil dari <a href="http://badanbahasa.kemdikbud.go.id/" target="_blank">Badan Pengembangan dan Pembinaan Bahasa</a></p>
+            <p>Data tesaurus diambil dari <a href="http://badanbahasa.kemdikbud.go.id/" target="_blank">Badan
+                    Pengembangan dan Pembinaan Bahasa</a></p>
         </div>
     </footer>
 
     @stack('scripts')
 </body>
+
 </html>

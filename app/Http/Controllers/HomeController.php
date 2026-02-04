@@ -7,11 +7,19 @@ use App\Models\Category;
 use App\Models\Lemma;
 use App\Models\WordClass;
 use App\Models\WordRelation;
+use App\Helpers\TesaurusFormatter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
+    protected $formatter;
+
+    public function __construct()
+    {
+        $this->formatter = new TesaurusFormatter();
+    }
+
     public function index()
     {
         $stats = [
@@ -21,7 +29,13 @@ class HomeController extends Controller
         ];
 
         $wordClasses = WordClass::withCount('wordRelations')->get();
-        $categories = Category::with(['subcategories.articles'])->get();
+        $categories = Category::with([
+            'subcategories' => function($q) {
+                $q->with(['articles' => function($qa) {
+                    $qa->orderBy('num', 'asc');
+                }])->orderBy('num', 'asc');
+            }
+        ])->get();
 
         return view('home', compact('stats', 'wordClasses', 'categories'));
     }
@@ -34,12 +48,29 @@ class HomeController extends Controller
             return redirect()->route('home');
         }
 
-        // Search for articles that contain the search term
-        // This matches the tesaurus structure where articles group related words
+        // Search for lemmas first, then get their related articles
+        $lemmas = Lemma::where('name', 'LIKE', "%{$query}%")
+            ->with([
+                'wordRelations' => function($q) {
+                    $q->with([
+                        'article',
+                        'lemma',
+                        'type',
+                        'wordClass',
+                        'relationshipType'
+                    ])->orderBy('par_num', 'asc')
+                      ->orderBy('word_order', 'asc');
+                },
+                'label'
+            ])
+            ->paginate(10);
+
+        // Get all related articles for context
         $articles = Article::with([
             'wordRelations' => function($q) {
-                $q->with(['lemma', 'type', 'wordClass'])
-                  ->orderBy('type_id', 'asc'); // article title first, then superordinate, then ordinary
+                $q->with(['lemma', 'type', 'wordClass', 'relationshipType'])
+                  ->orderBy('par_num', 'asc')
+                  ->orderBy('word_order', 'asc');
             },
             'category',
             'subcategory'
@@ -47,9 +78,9 @@ class HomeController extends Controller
         ->whereHas('wordRelations.lemma', function($q) use ($query) {
             $q->where('name', 'LIKE', "%{$query}%");
         })
-        ->paginate(10);
+        ->paginate(5);
 
-        return view('search', compact('articles', 'query'));
+        return view('search', compact('lemmas', 'articles', 'query'));
     }
 
     public function lemma($slug)
@@ -58,9 +89,22 @@ class HomeController extends Controller
         $name = str_replace('-', ' ', $slug);
         
         // Load lemma with all necessary relationships
-        $lemma = Lemma::with(['label', 'wordRelations.wordClass', 'wordRelations.article'])
-            ->where('name', $name)
-            ->firstOrFail();
+        $lemma = Lemma::with([
+            'label',
+            'wordRelations' => function($q) {
+                $q->with([
+                    'wordClass',
+                    'article',
+                    'type',
+                    'relationshipType'
+                ])->orderBy('article_id', 'asc')
+                  ->orderBy('par_num', 'asc')
+                  ->orderBy('meaning_group', 'asc')
+                  ->orderBy('word_order', 'asc');
+            }
+        ])
+        ->where('name', $name)
+        ->firstOrFail();
 
         // Get all article IDs where this lemma appears
         $articleIds = $lemma->wordRelations->pluck('article_id')->unique()->filter();
@@ -71,58 +115,96 @@ class HomeController extends Controller
         $examples = collect();
         $relatedWords = collect();
         $relatedLemmas = collect();
+        $articles = collect();
 
         // If lemma has articles, get related words from those articles
         if ($articleIds->isNotEmpty()) {
-            // Get all word relations in the same articles
-            $allRelations = WordRelation::with(['lemma', 'type'])
-                ->whereIn('article_id', $articleIds)
-                ->where('lemma_id', '!=', $lemma->id)
-                ->get();
+            // Get all word relations in the same articles, grouped by relationship type
+            $allRelations = WordRelation::with([
+                'lemma',
+                'type',
+                'relationshipType',
+                'article' => function($q) {
+                    $q->with(['category', 'subcategory']);
+                }
+            ])
+            ->whereIn('article_id', $articleIds)
+            ->where('lemma_id', '!=', $lemma->id)
+            ->orderBy('article_id', 'asc')
+            ->orderBy('par_num', 'asc')
+            ->orderBy('meaning_group', 'asc')
+            ->orderBy('word_order', 'asc')
+            ->get();
 
-            // Organize by type
+            // Organize by relationship type
             foreach ($allRelations as $relation) {
                 if ($relation->lemma) {
-                    // Check type safely
-                    if ($relation->type) {
-                        $typeName = strtolower($relation->type->name);
+                    // Check relationship type (sinonimi, hiponimi, meronimi, dll)
+                    if ($relation->relationshipType) {
+                        $relTypeName = strtolower($relation->relationshipType->name);
                         
-                        if (in_array($typeName, ['sinonim', 'synonym'])) {
+                        if ($relTypeName === 'sinonimi') {
                             $synonyms->push($relation);
-                        } elseif (in_array($typeName, ['antonim', 'antonym'])) {
+                        } elseif ($relTypeName === 'hiponimi') {
+                            // Hyponyms are more specific
+                            $relatedWords->push($relation);
+                        } elseif ($relTypeName === 'meronimi') {
+                            // Meronyms are parts
+                            $relatedWords->push($relation);
+                        } elseif ($relTypeName === 'antonimi') {
                             $antonyms->push($relation);
-                        } elseif (in_array($typeName, ['contoh', 'example'])) {
-                            $examples->push($relation);
                         } else {
                             $relatedWords->push($relation);
                         }
                     } else {
-                        // If no type, treat as related word
+                        // If no relationship type, treat as related word
                         $relatedWords->push($relation);
                     }
                 }
             }
 
-            // Get unique related lemmas (all words in same article group)
+            // Get unique related lemmas
             $relatedLemmas = $allRelations
                 ->pluck('lemma')
                 ->filter()
                 ->unique('id')
-                ->take(20); // Limit to 20 related words
+                ->take(20);
+
+            // Get articles for context
+            $articles = $allRelations
+                ->pluck('article')
+                ->filter()
+                ->unique('id')
+                ->take(3);
         }
 
-        // Convert collections to arrays for blade compatibility
-        $synonyms = $synonyms->unique('lemma_id')->values()->all();
-        $antonyms = $antonyms->unique('lemma_id')->values()->all();
-        $examples = $examples->take(5)->all(); // Limit examples
-        $relatedWords = $relatedWords->unique('lemma_id')->take(15)->all();
+        // Smart sort collections
+        $synonyms = $this->formatter->smartSort($synonyms->unique('lemma_id')->values()->all());
+        $antonyms = $this->formatter->smartSort($antonyms->unique('lemma_id')->values()->all());
+        $examples = $examples->take(5)->all();
+        $relatedWords = $this->formatter->smartSort($relatedWords->unique('lemma_id')->take(15)->all());
 
-        return view('lemma', compact('lemma', 'synonyms', 'antonyms', 'examples', 'relatedWords', 'relatedLemmas'));
+        return view('lemma', compact(
+            'lemma',
+            'synonyms',
+            'antonyms',
+            'examples',
+            'relatedWords',
+            'relatedLemmas',
+            'articles'
+        ));
     }
 
     public function category()
     {
-        $categories = Category::all();
+        $categories = Category::with([
+            'subcategories' => function($q) {
+                $q->with(['articles' => function($qa) {
+                    $qa->orderBy('num', 'asc');
+                }])->orderBy('num', 'asc');
+            }
+        ])->get();
+        
         $wordClasses = WordClass::withCount('wordRelations')->get();
         
         $filter = request()->query();
@@ -154,8 +236,12 @@ class HomeController extends Controller
             $lemmas->where('name', 'LIKE', request('letter') . '%');
         }
 
-        $lemmas = $lemmas->with(['label', 'wordRelations.wordClass'])
-            ->paginate(15);
+        // Smart sort hasil
+        $lemmasCollection = $lemmas->with(['label', 'wordRelations.wordClass'])
+            ->get();
+        
+        $lemmasCollection = collect($this->formatter->smartSort($lemmasCollection->toArray()));
+        $lemmas = $lemmasCollection->paginate(15);
 
         return view('category', compact('categories', 'wordClasses', 'lemmas', 'filter'));
     }

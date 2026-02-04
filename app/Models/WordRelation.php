@@ -19,6 +19,13 @@ class WordRelation extends Model
         'type_id',
         'word_order',
         'lemma_id',
+        'meaning_group',
+        'description',
+        'is_superordinate',
+        'foreign_language',
+        'language_variant',
+        'is_bold',
+        'relationship_type',
     ];
 
     public function article(): BelongsTo
@@ -39,6 +46,11 @@ class WordRelation extends Model
     public function type(): BelongsTo
     {
         return $this->belongsTo(Type::class, 'type_id');
+    }
+
+    public function relationshipType(): BelongsTo
+    {
+        return $this->belongsTo(LabelType::class, 'relationship_type');
     }
 }
 

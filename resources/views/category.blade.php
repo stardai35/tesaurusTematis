@@ -278,7 +278,9 @@
             <div class="word-info">
                 <div class="word-name">{{ $lemma->name }}</div>
                 <div class="word-badges">
-                    <span class="badge badge-nomina">{{ $lemma->label->name }}</span>
+                    @if($lemma->label)
+                        <span class="badge badge-nomina">{{ $lemma->label->name }}</span>
+                    @endif
                     @foreach($lemma->wordRelations->take(1) as $relation)
                         @if($relation->wordClass)
                             <span class="badge badge-teknologi">{{ $relation->wordClass->name }}</span>

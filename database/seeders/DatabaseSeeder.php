@@ -413,6 +413,8 @@ class DatabaseSeeder extends Seeder
             ]
         ];
 
+        $articleNumber = 1; // Counter global untuk numbering artikel
+
         foreach ($data as $item) {
             $categoryData = $item['category'];
             $categoryData['slug'] = Str::slug($categoryData['title']);
@@ -431,12 +433,12 @@ class DatabaseSeeder extends Seeder
                 
                 $subcategory = DB::table('subcategory')->insertGetId($subcatData);
 
-                // Insert articles
-                foreach ($articles as $articleIndex => $articleTitle) {
+                // Insert articles dengan numbering melanjut global
+                foreach ($articles as $articleTitle) {
                     DB::table('article')->insert([
                         'cat_id' => $category,
                         'subcat_id' => $subcategory,
-                        'num' => $articleIndex + 1,
+                        'num' => $articleNumber++,
                         'title' => $articleTitle,
                         'slug' => Str::slug($articleTitle),
                     ]);

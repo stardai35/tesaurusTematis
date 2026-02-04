@@ -249,9 +249,8 @@
     .articles-inner {
         padding-left: 0;
         margin-top: 0.2rem;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.3rem 1.5rem;
+        column-count: 3;
+        column-gap: 2rem;
     }
 
     .article-item {
@@ -259,6 +258,8 @@
         font-size: 0.9rem;
         color: #6b7280;
         line-height: 1.5;
+        break-inside: avoid;
+        margin-bottom: 0.3rem;
     }
 </style>
 @endpush

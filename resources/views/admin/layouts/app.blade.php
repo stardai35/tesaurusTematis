@@ -284,19 +284,38 @@
                         📊 Dashboard
                     </a>
                 </div>
+                
+                <div style="padding: 0.75rem 1rem; margin-top: 1rem; font-size: 0.8rem; font-weight: 700; color: var(--text-light); text-transform: uppercase;">
+                    Data Management
+                </div>
+                
                 <div class="nav-item">
-                    <a href="{{ route('admin.lemmas.index') }}" class="nav-link {{ request()->routeIs('admin.lemmas.*') ? 'active' : '' }}">
-                        📝 Lemma
+                    <a href="{{ route('admin.word-relations.index') }}" class="nav-link {{ request()->routeIs('admin.word-relations.*') ? 'active' : '' }}">
+                        🔗 Relasi Kata (PENTING)
                     </a>
                 </div>
+                
                 <div class="nav-item">
                     <a href="{{ route('admin.articles.index') }}" class="nav-link {{ request()->routeIs('admin.articles.*') ? 'active' : '' }}">
                         📄 Artikel
                     </a>
                 </div>
+
+                <div class="nav-item">
+                    <a href="{{ route('admin.lemmas.index') }}" class="nav-link {{ request()->routeIs('admin.lemmas.*') ? 'active' : '' }}">
+                        📝 Lemma
+                    </a>
+                </div>
+
                 <div class="nav-item">
                     <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
                         🏷️ Kategori
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ route('admin.subcategories.index') }}" class="nav-link {{ request()->routeIs('admin.subcategories.*') ? 'active' : '' }}">
+                        📂 Subkategori
                     </a>
                 </div>
                 

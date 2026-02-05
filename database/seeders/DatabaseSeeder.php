@@ -59,9 +59,9 @@ class DatabaseSeeder extends Seeder
             LemmaSeeder::class,
         ]);
 
-        // 7. Seed Pengetahuan Article
+        // 7. Populate dummy word relations untuk artikel kosong
         $this->call([
-            PengetahuanArticleSeeder::class,
+            WordRelationDummySeeder::class,
         ]);
 
         // 8. Create admin user

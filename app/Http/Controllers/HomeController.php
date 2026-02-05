@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\Lemma;
+use App\Models\Subcategory;
 use App\Models\WordClass;
 use App\Models\WordRelation;
 use App\Helpers\TesaurusFormatter;
@@ -43,31 +44,60 @@ class HomeController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('q');
+        $wordClassFilter = $request->input('word_class');
+        $categoryFilter = $request->input('category');
+        $subcategoryFilter = $request->input('subcategory');
         
         if (empty($query)) {
             return redirect()->route('home');
         }
 
-        // Search for lemmas first, then get their related articles
-        $lemmas = Lemma::where('name', 'LIKE', "%{$query}%")
+        // Search SEMUA lemmas yang match dengan query
+        $lemmasQuery = Lemma::where('name', 'LIKE', "%{$query}%")
             ->with([
-                'wordRelations' => function($q) {
+                'wordRelations' => function($q) use ($wordClassFilter, $categoryFilter, $subcategoryFilter) {
+                    // Apply optional filters hanya pada word relations yang ditampilkan
+                    if ($wordClassFilter) {
+                        $q->where('wordclass_id', $wordClassFilter);
+                    }
+                    if ($categoryFilter) {
+                        $q->whereHas('article', function($qa) use ($categoryFilter) {
+                            $qa->where('cat_id', $categoryFilter);
+                        });
+                    }
+                    if ($subcategoryFilter) {
+                        $q->whereHas('article', function($qa) use ($subcategoryFilter) {
+                            $qa->where('subcat_id', $subcategoryFilter);
+                        });
+                    }
                     $q->with([
                         'article',
                         'lemma',
                         'type',
                         'wordClass',
                         'relationshipType'
-                    ])->orderBy('par_num', 'asc')
+                    ])->orderBy('article_id', 'asc')
+                      ->orderBy('par_num', 'asc')
                       ->orderBy('word_order', 'asc');
                 },
                 'label'
-            ])
-            ->paginate(10);
+            ]);
 
-        // Get all related articles for context
-        $articles = Article::with([
-            'wordRelations' => function($q) {
+        // Paginate lemmas - show even if filtered relations are empty
+        $lemmas = $lemmasQuery->paginate(10);
+
+        // Build articles query dengan filter
+        $articlesQuery = Article::with([
+            'wordRelations' => function($q) use ($query, $wordClassFilter, $categoryFilter, $subcategoryFilter) {
+                // Filter word relations untuk artikel
+                $q->whereHas('lemma', function($qa) use ($query) {
+                    $qa->where('name', 'LIKE', "%{$query}%");
+                });
+                
+                if ($wordClassFilter) {
+                    $q->where('wordclass_id', $wordClassFilter);
+                }
+                
                 $q->with(['lemma', 'type', 'wordClass', 'relationshipType'])
                   ->orderBy('par_num', 'asc')
                   ->orderBy('word_order', 'asc');
@@ -77,10 +107,24 @@ class HomeController extends Controller
         ])
         ->whereHas('wordRelations.lemma', function($q) use ($query) {
             $q->where('name', 'LIKE', "%{$query}%");
-        })
-        ->paginate(5);
+        });
+        
+        if ($categoryFilter) {
+            $articlesQuery->where('cat_id', $categoryFilter);
+        }
+        
+        if ($subcategoryFilter) {
+            $articlesQuery->where('subcat_id', $subcategoryFilter);
+        }
 
-        return view('search', compact('lemmas', 'articles', 'query'));
+        $articles = $articlesQuery->paginate(5);
+        
+        // Get available filters for display
+        $wordClasses = WordClass::all();
+        $categories = Category::all();
+        $subcategories = $categoryFilter ? Subcategory::where('cat_id', $categoryFilter)->get() : collect();
+
+        return view('search', compact('lemmas', 'articles', 'query', 'wordClasses', 'categories', 'subcategories', 'wordClassFilter', 'categoryFilter', 'subcategoryFilter'));
     }
 
     public function lemma($slug)

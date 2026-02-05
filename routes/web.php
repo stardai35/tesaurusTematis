@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LemmaController as AdminLemmaController;
 use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\SubcategoryController as AdminSubcategoryController;
+use App\Http\Controllers\Admin\WordRelationController as AdminWordRelationController;
 
 // Public Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -37,6 +39,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     
     // Category Management
     Route::resource('categories', AdminCategoryController::class);
+    
+    // Subcategory Management
+    Route::resource('subcategories', AdminSubcategoryController::class);
+    
+    // Word Relation Management (Most Important)
+    Route::resource('word-relations', AdminWordRelationController::class);
+    Route::get('/articles/{article}/word-relations', [AdminWordRelationController::class, 'byArticle'])
+        ->name('word-relations.by-article');
 });
 
 // API Routes

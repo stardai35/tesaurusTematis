@@ -68,4 +68,29 @@ class LemmaController extends Controller
         return redirect()->route('admin.lemmas.index')
             ->with('success', 'Lemma berhasil dihapus');
     }
+
+    /**
+     * Quick create lemma via AJAX
+     */
+    public function quickCreate(Request $request)
+    {
+        $validated = $request->validate([
+            'label_id' => 'required|exists:label,id',
+            'name' => 'required|string|max:255|unique:lemma,name',
+            'name_tagged' => 'nullable|string|max:255',
+        ]);
+
+        $lemma = Lemma::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lemma berhasil dibuat',
+            'data' => [
+                'id' => $lemma->id,
+                'name' => $lemma->name,
+                'label_id' => $lemma->label_id,
+                'label' => $lemma->label,
+            ]
+        ], 201);
+    }
 }

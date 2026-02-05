@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Panel') - Tesaurus Tematis</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -298,11 +299,7 @@
                         🏷️ Kategori
                     </a>
                 </div>
-                <div class="nav-item">
-                    <a href="{{ route('admin.word-relations.index') }}" class="nav-link {{ request()->routeIs('admin.word-relations.*') ? 'active' : '' }}">
-                        🔗 Relasi Kata
-                    </a>
-                </div>
+                
                 <div class="nav-item" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
                     <a href="{{ route('home') }}" class="nav-link">
                         🏠 Lihat Website

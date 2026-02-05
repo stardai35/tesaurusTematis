@@ -59,7 +59,12 @@ class DatabaseSeeder extends Seeder
             LemmaSeeder::class,
         ]);
 
-        // 7. Create admin user
+        // 7. Seed Pengetahuan Article
+        $this->call([
+            PengetahuanArticleSeeder::class,
+        ]);
+
+        // 8. Create admin user
         DB::table('users')->insert([
             'name' => 'Admin',
             'email' => 'admin@tesaurus.com',

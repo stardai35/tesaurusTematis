@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Edit Kategori')
+@section('page-title', 'Edit Kategori')
 
 @section('content')
 <div class="page-header">
@@ -8,23 +8,25 @@
 </div>
 
 <div class="card">
-    <form method="POST" action="{{ route('admin.categories.update', $category) }}">
+    <form action="{{ route('admin.categories.update', $category) }}" method="POST">
         @csrf
         @method('PUT')
-        
+
         <div class="form-group">
-            <label class="form-label">Nomor Urut</label>
-            <input type="number" name="num" class="form-control" value="{{ $category->num }}">
+            <label class="form-label">Nama Kategori <span style="color: #ef4444;">*</span></label>
+            <input type="text" name="title" class="form-control" value="{{ old('title', $category->title) }}" required>
+            @error('title') <small style="color: #ef4444;">{{ $message }}</small> @enderror
         </div>
 
         <div class="form-group">
-            <label class="form-label">Judul Kategori *</label>
-            <input type="text" name="title" class="form-control" value="{{ $category->title }}" required>
+            <label class="form-label">Urutan</label>
+            <input type="number" name="num" class="form-control" value="{{ old('num', $category->num) }}">
+            @error('num') <small style="color: #ef4444;">{{ $message }}</small> @enderror
         </div>
 
         <div style="display: flex; gap: 1rem;">
-            <button type="submit" class="btn btn-primary">Update</button>
-            <a href="{{ route('admin.categories.index') }}" class="btn" style="background: #e5e7eb;">Batal</a>
+            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+            <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">Batal</a>
         </div>
     </form>
 </div>

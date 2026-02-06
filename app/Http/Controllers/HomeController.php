@@ -52,24 +52,30 @@ class HomeController extends Controller
             return redirect()->route('home');
         }
 
-        // Search SEMUA lemmas yang match dengan query
-        $lemmasQuery = Lemma::where('name', 'LIKE', "%{$query}%")
+        // Build lemmas query with optional filters
+        $lemmasQuery = Lemma::where('name', 'LIKE', "%{$query}%");
+        
+        if ($wordClassFilter) {
+            $lemmasQuery->whereHas('wordRelations', function($q) use ($wordClassFilter) {
+                $q->where('wordclass_id', $wordClassFilter);
+            });
+        }
+        
+        if ($categoryFilter) {
+            $lemmasQuery->whereHas('wordRelations.article', function($q) use ($categoryFilter) {
+                $q->where('cat_id', $categoryFilter);
+            });
+        }
+        
+        if ($subcategoryFilter) {
+            $lemmasQuery->whereHas('wordRelations.article', function($q) use ($subcategoryFilter) {
+                $q->where('subcat_id', $subcategoryFilter);
+            });
+        }
+
+        $lemmas = $lemmasQuery
             ->with([
-                'wordRelations' => function($q) use ($wordClassFilter, $categoryFilter, $subcategoryFilter) {
-                    // Apply optional filters hanya pada word relations yang ditampilkan
-                    if ($wordClassFilter) {
-                        $q->where('wordclass_id', $wordClassFilter);
-                    }
-                    if ($categoryFilter) {
-                        $q->whereHas('article', function($qa) use ($categoryFilter) {
-                            $qa->where('cat_id', $categoryFilter);
-                        });
-                    }
-                    if ($subcategoryFilter) {
-                        $q->whereHas('article', function($qa) use ($subcategoryFilter) {
-                            $qa->where('subcat_id', $subcategoryFilter);
-                        });
-                    }
+                'wordRelations' => function($q) {
                     $q->with([
                         'article',
                         'lemma',
@@ -81,23 +87,12 @@ class HomeController extends Controller
                       ->orderBy('word_order', 'asc');
                 },
                 'label'
-            ]);
+            ])
+            ->paginate(10);
 
-        // Paginate lemmas - show even if filtered relations are empty
-        $lemmas = $lemmasQuery->paginate(10);
-
-        // Build articles query dengan filter
+        // Build articles query with optional filters
         $articlesQuery = Article::with([
-            'wordRelations' => function($q) use ($query, $wordClassFilter, $categoryFilter, $subcategoryFilter) {
-                // Filter word relations untuk artikel
-                $q->whereHas('lemma', function($qa) use ($query) {
-                    $qa->where('name', 'LIKE', "%{$query}%");
-                });
-                
-                if ($wordClassFilter) {
-                    $q->where('wordclass_id', $wordClassFilter);
-                }
-                
+            'wordRelations' => function($q) {
                 $q->with(['lemma', 'type', 'wordClass', 'relationshipType'])
                   ->orderBy('par_num', 'asc')
                   ->orderBy('word_order', 'asc');
@@ -108,6 +103,12 @@ class HomeController extends Controller
         ->whereHas('wordRelations.lemma', function($q) use ($query) {
             $q->where('name', 'LIKE', "%{$query}%");
         });
+        
+        if ($wordClassFilter) {
+            $articlesQuery->whereHas('wordRelations', function($q) use ($wordClassFilter) {
+                $q->where('wordclass_id', $wordClassFilter);
+            });
+        }
         
         if ($categoryFilter) {
             $articlesQuery->where('cat_id', $categoryFilter);

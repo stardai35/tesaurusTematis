@@ -4,125 +4,144 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
-use App\Models\Lemma;
 use App\Models\WordClass;
+use App\Models\Type;
+use App\Models\Lemma;
 use App\Models\WordRelation;
-use App\Models\LabelType;
 use Illuminate\Http\Request;
 
 class WordRelationController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index(Request $request)
     {
-        $wordRelations = WordRelation::with([
-            'article',
-            'lemma',
-            'wordClass',
-            'type',
-            'relationshipType'
-        ])
-        ->when($request->search, function($q) use ($request) {
-            $q->whereHas('lemma', function($q2) use ($request) {
-                $q2->where('name', 'LIKE', "%{$request->search}%");
-            });
-        })
-        ->when($request->article_id, function($q) use ($request) {
-            $q->where('article_id', $request->article_id);
-        })
-        ->orderBy('article_id', 'desc')
-        ->orderBy('par_num', 'asc')
-        ->orderBy('word_order', 'asc')
-        ->paginate(20);
+        $wordRelations = WordRelation::with(['article', 'lemma', 'wordClass', 'type'])
+            ->when($request->search, function ($query) use ($request) {
+                $query->whereHas('article', function ($q) use ($request) {
+                    $q->where('title', 'LIKE', "%{$request->search}%");
+                })->orWhereHas('lemma', function ($q) use ($request) {
+                    $q->where('word', 'LIKE', "%{$request->search}%");
+                });
+            })
+            ->paginate(20);
 
-        $articles = Article::orderBy('title', 'asc')->get();
-
-        return view('admin.word-relations.index', compact('wordRelations', 'articles'));
+        return view('admin.word-relations.index', compact('wordRelations'));
     }
 
-    public function create(Article $article = null)
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
     {
-        $articles = Article::orderBy('title', 'asc')->get();
-        $lemmas = Lemma::orderBy('name', 'asc')->get();
-        $wordClasses = WordClass::orderBy('name', 'asc')->get();
-        $labelTypes = LabelType::orderBy('name', 'asc')->get();
-        
-        return view('admin.word-relations.create', compact('articles', 'lemmas', 'wordClasses', 'labelTypes', 'article'));
+        $articles = Article::all();
+        $wordClasses = WordClass::all();
+        $types = Type::all();
+        $lemmas = Lemma::all();
+
+        return view('admin.word-relations.create', compact('articles', 'wordClasses', 'types', 'lemmas'));
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'article_id' => 'required|exists:article,id',
-            'lemma_id' => 'required|exists:lemma,id',
             'wordclass_id' => 'required|exists:word_class,id',
             'type_id' => 'nullable|exists:type,id',
-            'relationship_type' => 'nullable|exists:label_type,id',
-            'par_num' => 'nullable|integer|min:0',
-            'group_num' => 'nullable|integer|min:0',
-            'word_order' => 'nullable|integer|min:0',
-            'is_superordinate' => 'boolean',
-            'meaning_group' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'foreign_language' => 'nullable|string|max:255',
-            'language_variant' => 'nullable|string|max:255',
-            'is_bold' => 'boolean',
+            'lemma_id' => 'required|exists:lemma,id',
+            'par_num' => 'nullable|integer|min:1',
+            'word_order' => 'nullable|integer|min:1',
+            'group_num' => 'nullable|integer|min:1',
+            'meaning_group' => 'nullable|integer|min:1',
+            'description' => 'nullable|string',
+            'is_superordinate' => 'nullable|boolean',
+            'foreign_language' => 'nullable|string',
+            'language_variant' => 'nullable|string',
+            'is_bold' => 'nullable|boolean',
+            'relationship_type' => 'nullable|string',
         ]);
 
         WordRelation::create($validated);
 
         return redirect()->route('admin.word-relations.index')
-            ->with('success', 'Relasi kata berhasil ditambahkan');
+            ->with('success', 'Word Relation berhasil ditambahkan');
     }
 
+    /**
+     * Display the specified resource.
+     */
+    public function show(WordRelation $wordRelation)
+    {
+        $wordRelation->load(['article', 'lemma', 'wordClass', 'type']);
+        return view('admin.word-relations.show', compact('wordRelation'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(WordRelation $wordRelation)
     {
-        $articles = Article::orderBy('title', 'asc')->get();
-        $lemmas = Lemma::orderBy('name', 'asc')->get();
-        $wordClasses = WordClass::orderBy('name', 'asc')->get();
-        $labelTypes = LabelType::orderBy('name', 'asc')->get();
-        
-        return view('admin.word-relations.edit', compact('wordRelation', 'articles', 'lemmas', 'wordClasses', 'labelTypes'));
+        $wordRelation->load(['article', 'lemma', 'wordClass', 'type']);
+        $articles = Article::all();
+        $wordClasses = WordClass::all();
+        $types = Type::all();
+        $lemmas = Lemma::all();
+
+        return view('admin.word-relations.edit', compact('wordRelation', 'articles', 'wordClasses', 'types', 'lemmas'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, WordRelation $wordRelation)
     {
         $validated = $request->validate([
             'article_id' => 'required|exists:article,id',
-            'lemma_id' => 'required|exists:lemma,id',
             'wordclass_id' => 'required|exists:word_class,id',
             'type_id' => 'nullable|exists:type,id',
-            'relationship_type' => 'nullable|exists:label_type,id',
-            'par_num' => 'nullable|integer|min:0',
-            'group_num' => 'nullable|integer|min:0',
-            'word_order' => 'nullable|integer|min:0',
-            'is_superordinate' => 'boolean',
-            'meaning_group' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'foreign_language' => 'nullable|string|max:255',
-            'language_variant' => 'nullable|string|max:255',
-            'is_bold' => 'boolean',
+            'lemma_id' => 'required|exists:lemma,id',
+            'par_num' => 'nullable|integer|min:1',
+            'word_order' => 'nullable|integer|min:1',
+            'group_num' => 'nullable|integer|min:1',
+            'meaning_group' => 'nullable|integer|min:1',
+            'description' => 'nullable|string',
+            'is_superordinate' => 'nullable|boolean',
+            'foreign_language' => 'nullable|string',
+            'language_variant' => 'nullable|string',
+            'is_bold' => 'nullable|boolean',
+            'relationship_type' => 'nullable|string',
         ]);
 
         $wordRelation->update($validated);
 
         return redirect()->route('admin.word-relations.index')
-            ->with('success', 'Relasi kata berhasil diperbarui');
+            ->with('success', 'Word Relation berhasil diperbarui');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy(WordRelation $wordRelation)
     {
         $wordRelation->delete();
 
         return redirect()->route('admin.word-relations.index')
-            ->with('success', 'Relasi kata berhasil dihapus');
+            ->with('success', 'Word Relation berhasil dihapus');
     }
 
+    /**
+     * Get word relations by article.
+     */
     public function byArticle(Article $article)
     {
         $wordRelations = $article->wordRelations()
-            ->with(['lemma', 'wordClass', 'type', 'relationshipType'])
-            ->orderBy('par_num', 'asc')
-            ->orderBy('word_order', 'asc')
+            ->with(['lemma', 'wordClass', 'type'])
+            ->orderBy('par_num')
+            ->orderBy('word_order')
             ->get();
 
         return view('admin.word-relations.by-article', compact('article', 'wordRelations'));

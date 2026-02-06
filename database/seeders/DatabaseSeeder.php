@@ -14,6 +14,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed admin user first
+        $this->call([
+            AdminUserSeeder::class,
+        ]);
         // 1. Seed Labels (Jenis Kata)
         DB::table('label')->insert([
             ['name' => 'nomina', 'abbr' => 'n'],
@@ -64,7 +68,12 @@ class DatabaseSeeder extends Seeder
             WordRelationDummySeeder::class,
         ]);
 
-        // 8. Create admin user
+        // 8. Seed artikel DUGAAN dengan lemma dan pengelompokannya
+        $this->call([
+            DugaanArticleSeeder::class,
+        ]);
+
+        // 9. Create admin user
         DB::table('users')->insert([
             'name' => 'Admin',
             'email' => 'admin@tesaurus.com',

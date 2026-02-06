@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\TematisController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LemmaController as AdminLemmaController;
 use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
@@ -23,6 +24,17 @@ Route::get('/tim-redaksi', [HomeController::class, 'team'])->name('team');
 Route::get('/artikel', [ArticleController::class, 'index'])->name('articles.index');
 Route::get('/artikel/{article}', [ArticleController::class, 'show'])->name('articles.show');
 Route::get('/artikel/subcategory/{slug}', [ArticleController::class, 'showBySubcategory'])->name('articles.subcategory');
+
+// Tematis Routes (Public Thematic Search)
+Route::prefix('tematis')->name('tematis.')->group(function () {
+    Route::get('/', [TematisController::class, 'home'])->name('home');
+    Route::get('/cari', [TematisController::class, 'search'])->name('search');
+    Route::get('/kategori', [TematisController::class, 'category'])->name('category');
+    Route::get('/lema/{slug}', [TematisController::class, 'lemma'])->name('lemma');
+    Route::get('/tentang', function() { return view('tematis.pages.tentang'); })->name('tentang');
+    Route::get('/petunjuk', function() { return view('tematis.pages.petunjuk'); })->name('petunjuk');
+    Route::get('/tim-redaksi', function() { return view('tematis.pages.tim-redaksi'); })->name('tim_redaksi');
+});
 
 // Auth Routes
 require __DIR__.'/auth.php';

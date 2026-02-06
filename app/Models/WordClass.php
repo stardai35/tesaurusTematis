@@ -20,5 +20,17 @@ class WordClass extends Model
     {
         return $this->hasMany(WordRelation::class, 'wordclass_id');
     }
+
+    public function lemmas(): HasMany
+    {
+        return $this->hasManyThrough(
+            Lemma::class,
+            WordRelation::class,
+            'wordclass_id',
+            'id',
+            'id',
+            'lemma_id'
+        );
+    }
 }
 

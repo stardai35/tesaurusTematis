@@ -3,261 +3,78 @@
 namespace App\Helpers;
 
 /**
- * TesaurusFormatter - Helper untuk formatting teks sesuai aturan ortografi Tesaurus
- * Mengatur: cetak tebal, cetak miring, tanda baca, label ragam bahasa
+ * TesaurusFormatter Helper
+ * 
+ * This class provides formatting utilities for the Tesaurus application.
+ * It handles formatting of word relations, articles, and other tesaurus-related content.
  */
 class TesaurusFormatter
 {
     /**
-     * Format kata dengan cetak tebal untuk menandai acuan ke artikel lain
+     * Format a word with proper capitalization
+     *
+     * @param string $word
+     * @return string
      */
-    public static function bold($text): string
+    public function formatWord(string $word): string
     {
-        return "<strong>{$text}</strong>";
+        return strtoupper($word);
     }
 
     /**
-     * Format kata asing dengan cetak miring
+     * Format a list of words with proper separator
+     *
+     * @param array $words
+     * @param string $separator
+     * @return string
      */
-    public static function italic($text): string
+    public function formatWordList(array $words, string $separator = ', '): string
     {
-        return "<em>{$text}</em>";
+        return implode($separator, $words);
     }
 
     /**
-     * Format label ragam bahasa: cak (cakapan), kas (kasar), hor (hormat)
+     * Format article text with proper markdown or HTML
+     *
+     * @param string $text
+     * @return string
      */
-    public static function languageVariant($variant, $text): string
+    public function formatArticle(string $text): string
     {
-        $labels = [
-            'cak' => 'ragam cakapan',
-            'kas' => 'ragam kasar',
-            'hor' => 'ragam hormat',
-        ];
-
-        $label = $labels[$variant] ?? $variant;
-        return "{$text} <span class='language-variant'>({$label})</span>";
+        return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
     }
 
     /**
-     * Format hubungan sinonimi dengan koma
-     * Hubungan antara kata yang maknanya mirip atau sama
+     * Format paragraph number
+     *
+     * @param int $parNum
+     * @return string
      */
-    public static function synonymRelation($words): string
+    public function formatParagraphNumber(int $parNum): string
     {
-        return implode(', ', $words);
+        return "Paragraf {$parNum}";
     }
 
     /**
-     * Format hubungan hiponimi dengan koma
-     * Hubungan antara kata yang memiliki makna lebih sempit
+     * Format relation type
+     *
+     * @param string $relationType
+     * @return string
      */
-    public static function hyponymyRelation($words): string
+    public function formatRelationType(string $relationType): string
     {
-        return implode(', ', $words);
+        return ucfirst(strtolower($relationType));
     }
 
     /**
-     * Format hubungan meronimi dengan koma
-     * Hubungan suatu kata dengan bagian dari makna kata lain
+     * Check if text is foreign language
+     *
+     * @param string $text
+     * @return bool
      */
-    public static function meronymyRelation($words): string
+    public function isForeignLanguage(string $text): bool
     {
-        return implode(', ', $words);
-    }
-
-    /**
-     * Format superordinat dengan titik dua
-     */
-    public static function superordinate($superordinate, $items): string
-    {
-        $itemsStr = implode(', ', $items);
-        return "<strong>{$superordinate}</strong>: {$itemsStr}";
-    }
-
-    /**
-     * Format bentuk terikat dengan tanda hubung
-     */
-    public static function boundForm($form): string
-    {
-        return "-{$form}";
-    }
-
-    /**
-     * Format bentuk pilihan dengan tanda kurung
-     */
-    public static function optionalForm($mainForm, $optionalForm): string
-    {
-        return "{$mainForm} ({$optionalForm})";
-    }
-
-    /**
-     * Format dengan tambahan penjelasan dalam tanda kurung
-     */
-    public static function withExplanation($text, $explanation): string
-    {
-        return "{$text} <span class='explanation'>({$explanation})</span>";
-    }
-
-    /**
-     * Pisahkan dengan titik koma untuk nuansa makna berbeda
-     */
-    public static function differentNuanceGroup($items): string
-    {
-        return implode('; ', $items);
-    }
-
-    /**
-     * Format judul artikel dengan cetak tebal dan huruf kapital
-     */
-    public static function articleTitle($title): string
-    {
-        return "<strong>" . strtoupper($title) . "</strong>";
-    }
-
-    /**
-     * Format judul artikel dalam paragraf (untuk acuan ke artikel lain)
-     * Jika diklik, akan teralih ke halaman artikel terkait
-     */
-    public static function linkedArticleTitle($title, $slug): string
-    {
-        $titleFormatted = strtoupper($title);
-        return "<a href='" . route('lemma', ['slug' => $slug]) . "' class='article-reference'><strong>{$titleFormatted}</strong></a>";
-    }
-
-    /**
-     * Urutkan kata secara abjad
-     */
-    public static function sortAlphabetically($words): array
-    {
-        usort($words, function($a, $b) {
-            $textA = is_array($a) ? $a['name'] : (is_object($a) ? $a->name : $a);
-            $textB = is_array($b) ? $b['name'] : (is_object($b) ? $b->name : $b);
-            return strcasecmp($textA, $textB);
-        });
-        return $words;
-    }
-
-    /**
-     * Cek apakah kata adalah nama bulan untuk diurutkan khusus
-     */
-    public static function isMonth($text): bool
-    {
-        $months = [
-            'januari', 'februari', 'maret', 'april', 'mei', 'juni',
-            'juli', 'agustus', 'september', 'oktober', 'november', 'desember'
-        ];
-        return in_array(strtolower($text), $months);
-    }
-
-    /**
-     * Urutkan bulan berdasarkan urutan waktu
-     */
-    public static function sortMonths($months): array
-    {
-        $monthOrder = [
-            'januari' => 1, 'februari' => 2, 'maret' => 3, 'april' => 4,
-            'mei' => 5, 'juni' => 6, 'juli' => 7, 'agustus' => 8,
-            'september' => 9, 'oktober' => 10, 'november' => 11, 'desember' => 12
-        ];
-
-        usort($months, function($a, $b) use ($monthOrder) {
-            $nameA = is_array($a) ? $a['name'] : (is_object($a) ? $a->name : $a);
-            $nameB = is_array($b) ? $b['name'] : (is_object($b) ? $b->name : $b);
-            $orderA = $monthOrder[strtolower($nameA)] ?? 999;
-            $orderB = $monthOrder[strtolower($nameB)] ?? 999;
-            return $orderA - $orderB;
-        });
-
-        return $months;
-    }
-
-    /**
-     * Cek apakah kata adalah nama hari
-     */
-    public static function isDay($text): bool
-    {
-        $days = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
-        return in_array(strtolower($text), $days);
-    }
-
-    /**
-     * Urutkan hari berdasarkan urutan waktu
-     */
-    public static function sortDays($days): array
-    {
-        $dayOrder = [
-            'minggu' => 1, 'senin' => 2, 'selasa' => 3, 'rabu' => 4,
-            'kamis' => 5, 'jumat' => 6, 'sabtu' => 7
-        ];
-
-        usort($days, function($a, $b) use ($dayOrder) {
-            $nameA = is_array($a) ? $a['name'] : (is_object($a) ? $a->name : $a);
-            $nameB = is_array($b) ? $b['name'] : (is_object($b) ? $b->name : $b);
-            $orderA = $dayOrder[strtolower($nameA)] ?? 999;
-            $orderB = $dayOrder[strtolower($nameB)] ?? 999;
-            return $orderA - $orderB;
-        });
-
-        return $days;
-    }
-
-    /**
-     * Cek apakah kata adalah pangkat militer
-     */
-    public static function isMilitaryRank($text): bool
-    {
-        $ranks = [
-            'prajurit', 'kopral', 'sersan', 'sersan satu', 'sersan mayor', 'letnan', 'letnan satu',
-            'kapten', 'mayor', 'letnan kolonel', 'kolonel', 'brigadir jenderal', 'mayor jenderal',
-            'letnan jenderal', 'jenderal'
-        ];
-        return in_array(strtolower($text), $ranks);
-    }
-
-    /**
-     * Urutkan pangkat militer berdasarkan jenjang
-     */
-    public static function sortMilitaryRanks($ranks): array
-    {
-        $rankOrder = [
-            'prajurit' => 1, 'kopral' => 2, 'sersan' => 3, 'sersan satu' => 4, 'sersan mayor' => 5,
-            'letnan' => 6, 'letnan satu' => 7, 'kapten' => 8, 'mayor' => 9,
-            'letnan kolonel' => 10, 'kolonel' => 11, 'brigadir jenderal' => 12, 'mayor jenderal' => 13,
-            'letnan jenderal' => 14, 'jenderal' => 15
-        ];
-
-        usort($ranks, function($a, $b) use ($rankOrder) {
-            $nameA = is_array($a) ? $a['name'] : (is_object($a) ? $a->name : $a);
-            $nameB = is_array($b) ? $b['name'] : (is_object($b) ? $b->name : $b);
-            $orderA = $rankOrder[strtolower($nameA)] ?? 999;
-            $orderB = $rankOrder[strtolower($nameB)] ?? 999;
-            return $orderA - $orderB;
-        });
-
-        return $ranks;
-    }
-
-    /**
-     * Smart sort - otomatis deteksi jenis urutan berdasarkan konten
-     */
-    public static function smartSort($items): array
-    {
-        if (empty($items)) {
-            return $items;
-        }
-
-        $firstItem = is_array($items[0]) ? $items[0]['name'] : (is_object($items[0]) ? $items[0]->name : $items[0]);
-
-        if (self::isMonth($firstItem)) {
-            return self::sortMonths($items);
-        } elseif (self::isDay($firstItem)) {
-            return self::sortDays($items);
-        } elseif (self::isMilitaryRank($firstItem)) {
-            return self::sortMilitaryRanks($items);
-        }
-
-        // Default: sort alphabetically
-        return self::sortAlphabetically($items);
+        // Simple check - can be expanded based on requirements
+        return preg_match('/[^a-zA-Z\s]/', $text) === 0 && strlen($text) > 0;
     }
 }

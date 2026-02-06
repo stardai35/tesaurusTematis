@@ -131,32 +131,42 @@
         margin-bottom: 2rem;
     }
 
+    .results-header {
+        margin-bottom: 1.5rem;
+    }
+
     .results-count {
         font-size: 1rem;
         color: var(--text-light);
-        margin-bottom: 2rem;
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        margin-bottom: 1rem;
     }
 
-    .results-section {
-        margin-bottom: 3rem;
+    .results-tabs {
+        display: flex;
+        gap: 1rem;
+        border-bottom: 2px solid var(--border-color);
     }
 
-    .section-title {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: var(--text-dark);
-        margin-bottom: 1.5rem;
-        border-bottom: 3px solid var(--primary-blue);
-        padding-bottom: 0.75rem;
+    .results-tab {
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: var(--text-light);
+        transition: all 0.2s;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+    }
+
+    .results-tab.active {
+        color: var(--primary-blue);
+        border-bottom-color: var(--primary-blue);
     }
 
     .results-grid {
         display: grid;
-        gap: 2rem;
+        gap: 1.5rem;
     }
 
     .result-card {
@@ -210,22 +220,8 @@
         color: #1e40af;
     }
 
-    .badge-definition {
-        background: white;
-        color: var(--text-dark);
-        border: 1px solid #e5e7eb;
-    }
-
     .result-content {
         margin-top: 1rem;
-    }
-
-    .result-section-title {
-        font-weight: 700;
-        color: var(--text-dark);
-        margin-bottom: 0.75rem;
-        margin-top: 1rem;
-        font-size: 0.95rem;
     }
 
     .result-text {
@@ -234,51 +230,18 @@
         font-size: 0.95rem;
     }
 
+    .result-label {
+        font-weight: 600;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+    }
+
     .highlight-yellow {
         background-color: #fef08a;
         padding: 2px 4px;
         border-radius: 2px;
-    }
-
-    .word-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-    }
-
-    .word-item {
-        display: inline;
-    }
-
-    .word-item a {
-        color: #1f2937;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    .word-item a:hover {
-        text-decoration: underline;
-        color: var(--primary-blue);
-    }
-
-    .definition-by-class {
-        background: #f9fafb;
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 0.75rem 0;
-        border-left: 3px solid #2563eb;
-    }
-
-    .class-badge {
-        display: inline-block;
-        background: #dbeafe;
-        color: #1e40af;
-        padding: 0.25rem 0.5rem;
-        border-radius: 3px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
     }
 
     .no-results {
@@ -409,206 +372,176 @@
         </div>
     </form>
 
-    {{-- Results Summary --}}
+    {{-- Results Section --}}
     <div class="search-results">
-        @php
-            $totalResults = $lemmas->total() + $articles->total();
-        @endphp
-        <div class="results-count">
-            <strong>Ditemukan {{ $totalResults }} hasil</strong> - 
-            {{ $lemmas->total() }} lemma dan {{ $articles->total() }} artikel
+        <div class="results-header">
+            @php
+                $totalResults = $lemmas->total() + $articles->total();
+            @endphp
+            <div class="results-count">
+                Ditemukan <strong>{{ $totalResults }}</strong> hasil
+            </div>
         </div>
 
         @if($totalResults > 0)
-            {{-- LEMMAS RESULTS --}}
-            @if($lemmas->count() > 0)
-                <div class="results-section">
-                    <h2 class="section-title">📚 Lemma & Makna ({{ $lemmas->total() }})</h2>
-
-                    <div class="results-grid">
-                        @foreach($lemmas as $lemma)
-                        <div class="result-card">
-                            <div class="result-card-title">
-                                <a href="{{ route('lemma', str_replace(' ', '-', strtolower($lemma->name))) }}">
-                                    {{ strtoupper($lemma->name) }}
-                                </a>
-                            </div>
-
-                            @if($lemma->label)
-                                <div class="result-badges">
-                                    <span class="badge badge-primary">{{ strtoupper($lemma->label->name) }}</span>
-                                </div>
-                            @endif
-
-                            <div class="result-content">
-                                @if($lemma->wordRelations->count() > 0)
-                                    {{-- Group word relations by word class for better presentation --}}
-                                    @php
-                                        $relationsByClass = $lemma->wordRelations
-                                            ->groupBy('wordClass.name');
-                                    @endphp
-
-                                    @foreach($relationsByClass as $className => $relations)
-                                        <div class="definition-by-class">
-                                            <span class="class-badge">{{ $className }}</span>
-                                            
-                                            {{-- Display all articles where this lemma appears with this word class --}}
-                                            @php
-                                                $articles = $relations
-                                                    ->pluck('article')
-                                                    ->filter()
-                                                    ->unique('id')
-                                                    ->take(5);
-                                            @endphp
-
-                                            @foreach($articles as $article)
-                                                <div style="margin-bottom: 0.75rem; color: var(--text-light); font-size: 0.85rem;">
-                                                    <strong style="color: var(--text-dark);">{{ $article->title }}:</strong>
-                                                    
-                                                    {{-- Get all lemmas in this article for this word class --}}
-                                                    @php
-                                                        $articleRelations = $relations
-                                                            ->where('article_id', $article->id)
-                                                            ->pluck('lemma')
-                                                            ->filter()
-                                                            ->unique('id');
-                                                    @endphp
-
-                                                    <div class="word-list">
-                                                        @foreach($articleRelations as $relatedLemma)
-                                                            @php
-                                                                $isHighlight = str_contains(strtolower($relatedLemma->name), strtolower($query));
-                                                            @endphp
-                                                            <span class="word-item">
-                                                                @if($isHighlight)
-                                                                    <span class="highlight-yellow">
-                                                                @endif
-                                                                <a href="{{ route('lemma', str_replace(' ', '-', strtolower($relatedLemma->name))) }}">
-                                                                    {{ $relatedLemma->name }}
-                                                                </a>
-                                                                @if($isHighlight)
-                                                                    </span>
-                                                                @endif
-                                                            </span>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @endforeach
-                                @else
-                                    <div style="color: var(--text-light); font-style: italic;">
-                                        Lemma ini belum memiliki data relasi dalam artikel.
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-
-                    @if($lemmas->hasPages())
-                        <div class="pagination">
-                            {{ $lemmas->links() }}
-                        </div>
-                    @endif
-                </div>
-            @endif
-
             {{-- ARTICLES RESULTS --}}
             @if($articles->count() > 0)
-                <div class="results-section">
-                    <h2 class="section-title">📖 Artikel ({{ $articles->total() }})</h2>
+                <div class="results-grid">
+                    <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; margin-top: 2rem; color: var(--text-dark);">
+                        Hasil dari Artikel ({{ $articles->total() }})
+                    </h2>
 
-                    <div class="results-grid">
-                        @foreach($articles as $article)
-                        <div class="result-card">
-                            <div class="result-card-title">
-                                <a href="{{ route('articles.show', $article) }}">
-                                    {{ strtoupper($article->title) }}
-                                </a>
-                            </div>
+                    @foreach($articles as $article)
+                    <div class="result-card">
+                        {{-- Article Title --}}
+                        @php
+                            $titleRelation = $article->wordRelations->first();
+                            $displayTitle = $article->title ?? ($titleRelation ? $titleRelation->lemma->name : 'Tanpa Judul');
+                        @endphp
+                        
+                        <div class="result-card-title">
+                            <a href="{{ route('articles.show', $article) }}">
+                                {{ strtoupper($displayTitle) }}
+                            </a>
+                        </div>
 
-                            <div class="result-badges">
-                                @if($article->category)
-                                    <span class="badge badge-primary">{{ $article->category->title }}</span>
-                                @endif
-                                @if($article->subcategory)
-                                    <span class="badge">{{ $article->subcategory->title }}</span>
-                                @endif
-                            </div>
+                        {{-- Category and Subcategory --}}
+                        <div class="result-badges">
+                            @if($article->category)
+                                <span class="badge badge-primary">{{ $article->category->title }}</span>
+                            @endif
+                            @if($article->subcategory)
+                                <span class="badge">{{ $article->subcategory->title }}</span>
+                            @endif
+                        </div>
 
-                            <div class="result-content">
-                                @php
-                                    $superordinates = $article->wordRelations->where('is_superordinate', true);
-                                    $ordinaryLemmas = $article->wordRelations->whereNotIn('id', $superordinates->pluck('id'));
-                                @endphp
-                                
-                                {{-- Superordinates Section --}}
-                                @if($superordinates->count() > 0)
-                                    <div class="result-text">
-                                        <strong>Makna Umum (Superordinate):</strong>
-                                        @foreach($superordinates as $index => $relation)
-                                            @if($relation->lemma)
-                                                <a href="{{ route('lemma', str_replace(' ', '-', strtolower($relation->lemma->name))) }}" 
-                                                   style="color: #2563eb; text-decoration: none; font-weight: 600;">
-                                                    {{ $relation->lemma->name }}
-                                                </a>
-                                                @if($index < $superordinates->count() - 1)
-                                                    <span>,</span>
-                                                @endif
+                        {{-- Article Content Structure --}}
+                        <div class="result-content">
+                            @php
+                                $superordinates = $article->wordRelations->where('is_superordinate', true);
+                                $ordinaryLemmas = $article->wordRelations->whereNotIn('id', $superordinates->pluck('id'));
+                                $searchTerm = strtolower($query);
+                            @endphp
+                            
+                            {{-- Superordinates Section --}}
+                            @if($superordinates->count() > 0)
+                                <div class="result-text">
+                                    <strong>Makna Umum:</strong>
+                                    @foreach($superordinates as $index => $relation)
+                                        @if($relation->lemma)
+                                            <a href="{{ route('lemma', str_replace(' ', '-', strtolower($relation->lemma->name))) }}" 
+                                               style="color: #2563eb; text-decoration: none; font-weight: 600;">
+                                                {{ $relation->lemma->name }}
+                                            </a>
+                                            @if($index < $superordinates->count() - 1), @endif
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
+                            
+                            {{-- Ordinary Lemmas Section --}}
+                            @if($ordinaryLemmas->count() > 0)
+                                <div class="result-text" style="margin-top: 0.75rem;">
+                                    <strong>Makna Khusus:</strong>
+                                    @php
+                                        $lemmasList = [];
+                                    @endphp
+                                    @foreach($ordinaryLemmas as $relation)
+                                        @if($relation->lemma && !in_array($relation->lemma->id, $lemmasList))
+                                            @php $lemmasList[] = $relation->lemma->id; @endphp
+                                            @php
+                                                $lemmaName = $relation->lemma->name;
+                                                $isSearchMatch = str_contains(strtolower($lemmaName), $searchTerm);
+                                            @endphp
+                                            
+                                            @if($isSearchMatch)
+                                                <span class="highlight-yellow">
                                             @endif
-                                        @endforeach
-                                    </div>
-                                @endif
-                                
-                                {{-- Ordinary Lemmas Section --}}
-                                @if($ordinaryLemmas->count() > 0)
-                                    <div class="result-text" style="margin-top: 0.75rem;">
-                                        <strong>Makna Khusus (Hyponym/Ordinary):</strong>
-                                        @php
-                                            $lemmasList = [];
-                                            $ordinaryArray = [];
-                                        @endphp
-                                        @foreach($ordinaryLemmas as $relation)
-                                            @if($relation->lemma && !in_array($relation->lemma->id, $lemmasList))
-                                                @php 
-                                                    $lemmasList[] = $relation->lemma->id;
-                                                    $ordinaryArray[] = $relation->lemma;
-                                                @endphp
-                                            @endif
-                                        @endforeach
-                                        
-                                        <div class="word-list" style="margin-top: 0.5rem;">
-                                            @foreach($ordinaryArray as $idx => $lemma)
-                                                @php
-                                                    $isHighlight = str_contains(strtolower($lemma->name), strtolower($query));
-                                                @endphp
-                                                <span class="word-item">
-                                                    @if($isHighlight)
-                                                        <span class="highlight-yellow">
-                                                    @endif
-                                                    <a href="{{ route('lemma', str_replace(' ', '-', strtolower($lemma->name))) }}">
-                                                        {{ $lemma->name }}
-                                                    </a>
-                                                    @if($isHighlight)
-                                                        </span>
-                                                    @endif
+                                            
+                                            <a href="{{ route('lemma', str_replace(' ', '-', strtolower($lemmaName))) }}" 
+                                               style="color: #1f2937; text-decoration: none;">
+                                                {{ $lemmaName }}
+                                            </a>
+                                            
+                                            @if($isSearchMatch)
                                                 </span>
-                                            @endforeach
-                                        </div>
-                                    </div>
+                                            @endif,
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+
+                @if($articles->hasPages())
+                    <div class="pagination">
+                        {{ $articles->links() }}
+                    </div>
+                @endif
+            @endif
+
+            {{-- LEMMAS RESULTS --}}
+            @if($lemmas->count() > 0)
+                <div class="results-grid" style="margin-top: 2rem;">
+                    <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-dark);">
+                        Hasil dari Lemma ({{ $lemmas->total() }})
+                    </h2>
+
+                    @foreach($lemmas as $lemma)
+                    <div class="result-card">
+                        <div class="result-card-title">
+                            <a href="{{ route('lemma', str_replace(' ', '-', strtolower($lemma->name))) }}">
+                                {{ strtoupper($lemma->name) }}
+                            </a>
+                        </div>
+
+                        @if($lemma->label)
+                            <div class="result-badges">
+                                <span class="badge badge-primary">{{ strtoupper($lemma->label->name) }}</span>
+                            </div>
+                        @endif
+
+                        <div class="result-content">
+                            @php
+                                $articlesCount = $lemma->wordRelations->pluck('article_id')->unique()->count();
+                                $wordClassesList = $lemma->wordRelations->pluck('wordClass.name')->unique()->filter();
+                            @endphp
+
+                            <div class="result-text">
+                                <strong>Ditemukan dalam:</strong>
+                                {{ $articlesCount }} artikel
+                                @if($wordClassesList->count() > 0)
+                                    | <strong>Kelas Kata:</strong> {{ $wordClassesList->join(', ') }}
                                 @endif
                             </div>
-                        </div>
-                        @endforeach
-                    </div>
 
-                    @if($articles->hasPages())
-                        <div class="pagination">
-                            {{ $articles->links() }}
+                            @if($lemma->wordRelations->count() > 0)
+                                <div class="result-label">Konteks Penggunaan:</div>
+                                <div class="result-text">
+                                    @php
+                                        $contexts = $lemma->wordRelations
+                                            ->take(3)
+                                            ->pluck('article')
+                                            ->filter()
+                                            ->unique('id');
+                                    @endphp
+                                    @foreach($contexts as $context)
+                                        • {{ $context->title ?? 'Artikel tanpa judul' }}<br>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
-                    @endif
+                    </div>
+                    @endforeach
                 </div>
+
+                @if($lemmas->hasPages())
+                    <div class="pagination">
+                        {{ $lemmas->links() }}
+                    </div>
+                @endif
             @endif
         @else
             <div class="no-results">

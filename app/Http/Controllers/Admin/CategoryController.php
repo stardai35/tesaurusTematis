@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::withCount('articles')->paginate(20);
+        $categories = Category::paginate(20);
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -23,11 +22,9 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'num' => 'nullable|integer',
             'title' => 'required|string|max:255',
+            'num' => 'nullable|integer',
         ]);
-
-        $validated['slug'] = Str::slug($validated['title']);
 
         Category::create($validated);
 
@@ -43,11 +40,9 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $validated = $request->validate([
-            'num' => 'nullable|integer',
             'title' => 'required|string|max:255',
+            'num' => 'nullable|integer',
         ]);
-
-        $validated['slug'] = Str::slug($validated['title']);
 
         $category->update($validated);
 

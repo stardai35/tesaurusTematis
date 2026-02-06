@@ -26,6 +26,12 @@ class ArticleController extends Controller
         return view('admin.articles.index', compact('articles'));
     }
 
+    public function show(Article $article)
+    {
+        $article->load('category', 'subcategory', 'wordRelations.lemma.label', 'wordRelations.wordClass');
+        return view('admin.articles.show', compact('article'));
+    }
+
     public function create()
     {
         $categories = Category::all();

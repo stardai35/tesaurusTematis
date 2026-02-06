@@ -179,13 +179,6 @@
                 <span class="badge badge-teknologi">{{ $lemma->wordRelations->first()->wordClass->name }}</span>
             @endif
         </div>
-        <div class="lemma-actions">
-            <button class="action-btn" title="Favorit">❤️</button>
-            <button class="action-btn" title="Bagikan">🔗</button>
-            <button class="action-btn" title="Salin">📋</button>
-            <button class="action-btn" title="Cetak">🖨️</button>
-        </div>
-    </div>
 
     <!-- Lemma Content -->
     <div class="lemma-content">

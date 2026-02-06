@@ -6,26 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Subcategory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class SubcategoryController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $subcategories = Subcategory::with('category')
-            ->when($request->category_id, function($q) use ($request) {
-                $q->where('cat_id', $request->category_id);
-            })
-            ->when($request->search, function($q) use ($request) {
-                $q->where('title', 'LIKE', "%{$request->search}%");
-            })
-            ->orderBy('cat_id', 'asc')
-            ->orderBy('num', 'asc')
-            ->paginate(20);
-
-        $categories = Category::all();
-
-        return view('admin.subcategories.index', compact('subcategories', 'categories'));
+        $subcategories = Subcategory::with('category')->paginate(20);
+        return view('admin.subcategories.index', compact('subcategories'));
     }
 
     public function create()
@@ -38,12 +25,9 @@ class SubcategoryController extends Controller
     {
         $validated = $request->validate([
             'cat_id' => 'required|exists:category,id',
-            'num' => 'required|integer|min:0',
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:subcategory,slug',
+            'num' => 'nullable|integer',
         ]);
-
-        $validated['slug'] = $validated['slug'] ?? Str::slug($validated['title']);
 
         Subcategory::create($validated);
 
@@ -61,12 +45,9 @@ class SubcategoryController extends Controller
     {
         $validated = $request->validate([
             'cat_id' => 'required|exists:category,id',
-            'num' => 'required|integer|min:0',
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:subcategory,slug,' . $subcategory->id,
+            'num' => 'nullable|integer',
         ]);
-
-        $validated['slug'] = $validated['slug'] ?? Str::slug($validated['title']);
 
         $subcategory->update($validated);
 

@@ -39,5 +39,26 @@ class Lemma extends Model
 
         return $slug !== '' ? $slug : 'lema';
     }
+
+    /**
+     * Scope to search lemmas across multiple fields
+     * Searches in: name, name_tagged, and id (if numeric)
+     */
+    public function scopeSearch($query, $search)
+    {
+        if (empty($search)) {
+            return $query;
+        }
+
+        return $query->where(function($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%")
+              ->orWhere('name_tagged', 'LIKE', "%{$search}%");
+            
+            // If search is numeric, also search by ID
+            if (is_numeric($search)) {
+                $q->orWhere('id', '=', (int)$search);
+            }
+        });
+    }
 }
 

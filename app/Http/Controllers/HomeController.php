@@ -144,7 +144,7 @@ class HomeController extends Controller
                     'relationshipType'
                 ])->orderBy('article_id', 'asc')
                   ->orderBy('par_num', 'asc')
-                  ->orderBy('meaning_group', 'asc')
+                  ->orderBy('group_num', 'asc')
                   ->orderBy('word_order', 'asc');
             }
         ])
@@ -177,7 +177,7 @@ class HomeController extends Controller
             ->where('lemma_id', '!=', $lemma->id)
             ->orderBy('article_id', 'asc')
             ->orderBy('par_num', 'asc')
-            ->orderBy('meaning_group', 'asc')
+            ->orderBy('group_num', 'asc')
             ->orderBy('word_order', 'asc')
             ->get();
 

@@ -128,7 +128,7 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($article->wordRelations as $relation)
+            @forelse(($wordRelations ?? $article->wordRelations) as $relation)
                 <tr>
                     <td><strong>{{ $relation->lemma?->name ?? '-' }}</strong></td>
                     <td><span class="badge">{{ $relation->wordClass?->name ?? '-' }}</span></td>
@@ -154,5 +154,15 @@
     <div class="action-button">
         <a href="{{ route('admin.word-relations.by-article', $article) }}" class="btn btn-primary">Tambah / Kelola Lemma</a>
     </div>
+
+    @if(isset($wordRelations))
+    <div style="margin-top: 2.5rem; width: 100%; display: flex; justify-content: center; align-items: center;">
+        <div style="background: #f9fafb; border-radius: 0.5rem; padding: 1rem 2rem; box-shadow: 0 1px 4px #e5e7eb; max-width: 600px; min-width: 320px; margin: 0 auto; overflow-x: auto; display: inline-block;">
+            <div style="min-width: max-content; margin: 0 auto;">
+                {{ $wordRelations->links() }}
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 @endsection

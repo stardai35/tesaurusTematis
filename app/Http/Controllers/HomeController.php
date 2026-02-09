@@ -284,9 +284,20 @@ class HomeController extends Controller
         // Smart sort hasil
         $lemmasCollection = $lemmas->with(['label', 'wordRelations.wordClass'])
             ->get();
-        
-        $lemmasCollection = collect($this->formatter->smartSort($lemmasCollection->toArray()));
-        $lemmas = $lemmasCollection->paginate(15);
+        $sorted = collect($this->formatter->smartSort($lemmasCollection->toArray()));
+
+        // Manual pagination for collection
+        $page = request('page', 1);
+        $perPage = 15;
+        $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $sorted->slice(($page - 1) * $perPage, $perPage)->values(),
+            $sorted->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        $lemmas = $paginated;
 
         return view('category', compact('categories', 'wordClasses', 'lemmas', 'filter'));
     }

@@ -36,6 +36,24 @@
     </div>
 </div>
 
+<!-- Quick Actions -->
+<div class="card" style="margin-top: 2rem;">
+    <h3 style="margin-bottom: 1rem;">Aksi Cepat</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <a href="{{ route('admin.articles.create') }}" class="btn btn-primary" style="text-align: center; padding: 1rem;">
+            + Tambah Artikel
+        </a>
+        <a href="{{ route('admin.lemmas.create') }}" class="btn btn-primary" style="text-align: center; padding: 1rem;">
+            + Tambah Lemma
+        </a>
+        <a href="{{ route('admin.categories.create') }}" class="btn btn-secondary" style="text-align: center; padding: 1rem;">
+            + Tambah Kategori
+        </a>
+        <a href="{{ route('admin.word-relations.index') }}" class="btn btn-secondary" style="text-align: center; padding: 1rem;">
+            🔗 Kelola Relasi Kata
+        </a>
+    </div>
+</div>
 <!-- Recent Data -->
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
     <!-- Recent Articles -->
@@ -86,22 +104,4 @@
     </div>
 </div>
 
-<!-- Quick Actions -->
-<div class="card" style="margin-top: 2rem;">
-    <h3 style="margin-bottom: 1rem;">Aksi Cepat</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-        <a href="{{ route('admin.articles.create') }}" class="btn btn-primary" style="text-align: center; padding: 1rem;">
-            + Tambah Artikel
-        </a>
-        <a href="{{ route('admin.lemmas.create') }}" class="btn btn-primary" style="text-align: center; padding: 1rem;">
-            + Tambah Lemma
-        </a>
-        <a href="{{ route('admin.categories.create') }}" class="btn btn-secondary" style="text-align: center; padding: 1rem;">
-            + Tambah Kategori
-        </a>
-        <a href="{{ route('admin.word-relations.index') }}" class="btn btn-secondary" style="text-align: center; padding: 1rem;">
-            🔗 Kelola Relasi Kata
-        </a>
-    </div>
-</div>
 @endsection

@@ -10,28 +10,76 @@
 <div class="card">
     <form action="{{ route('admin.lemmas.store') }}" method="POST">
         @csrf
-
-        <div class="form-group">
-            <label class="form-label">Label <span style="color: #ef4444;">*</span></label>
-            <select name="label_id" class="form-control" required>
-                <option value="">- Pilih Label -</option>
-                @foreach($labels as $label)
-                    <option value="{{ $label->id }}" @selected(old('label_id') == $label->id)>{{ $label->name }}</option>
-                @endforeach
-            </select>
-            @error('label_id') <small style="color: #ef4444;">{{ $message }}</small> @enderror
-        </div>
-
         <div class="form-group">
             <label class="form-label">Nama Lemma <span style="color: #ef4444;">*</span></label>
             <input type="text" name="name" class="form-control" required placeholder="Masukkan nama lemma" value="{{ old('name') }}">
             @error('name') <small style="color: #ef4444;">{{ $message }}</small> @enderror
         </div>
+        <div class="form-group">
+            <label class="form-label">Label </label>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                <label style="display: flex; align-items: center; gap: 0.25rem;">
+                    <input type="radio" name="label_id" value="" @checked(empty(old('label_id')))>
+                    <span style="color:#888;">Tanpa Label</span>
+                </label>
+                @foreach($labels as $label)
+                    <label style="display: flex; align-items: center; gap: 0.25rem;">
+                        <input type="radio" name="label_id" value="{{ $label->id }}" @checked(old('label_id') == $label->id)>
+                        {{ $label->name }}
+                    </label>
+                @endforeach
+            </div>
+                        @error('label_id') <small style="color: #ef4444;">{{ $message }}</small> @enderror
+        </div>
+        <div class="form-group">
+            <label class="form-label">Tipe</label>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                <label style="display: flex; align-items: center; gap: 0.25rem;">
+                    <input type="radio" name="type_id" value="" @checked(empty(old('type_id')))>
+                    <span style="color:#888;">Tanpa Tipe</span>
+                </label>
+                @foreach($types as $type)
+                    <label style="display: flex; align-items: center; gap: 0.25rem;">
+                        <input type="radio" name="type_id" value="{{ $type->id }}" @checked(old('type_id') == $type->id)>
+                        {{ $type->name }}
+                    </label>
+                @endforeach
+            </div>
+            @error('type_id') <small style="color: #ef4444;">{{ $message }}</small> @enderror
+        </div>
+        <div class="form-group">
+            <label class="form-label">Kelas Kata</label>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                <label style="display: flex; align-items: center; gap: 0.25rem;">
+                    <input type="radio" name="wordclass_id" value="" @checked(empty(old('wordclass_id')))>
+                    <span style="color:#888;">Tanpa Kelas Kata</span>
+                </label>
+                @foreach($wordClasses as $wc)
+                    <label style="display: flex; align-items: center; gap: 0.25rem;">
+                        <input type="radio" name="wordclass_id" value="{{ $wc->id }}" @checked(old('wordclass_id') == $wc->id)>
+                        {{ $wc->name }}
+                    </label>
+                @endforeach
+            </div>
+            @error('wordclass_id') <small style="color: #ef4444;">{{ $message }}</small> @enderror
+        </div>
+        <div class="form-group">
+            <label class="form-label">Artikel Sumber </label>
+            <select name="article_id" class="form-control">
+                <option value="">- Pilih Artikel -</option>
+                @if(isset($articles))
+                    @foreach($articles as $article)
+                        <option value="{{ $article->id }}" @selected(old('article_id') == $article->id)>{{ $article->title }}</option>
+                    @endforeach
+                @endif
+            </select>
+            @error('article_id') <small style="color: #ef4444;">{{ $message }}</small> @enderror
+        </div>
 
         <div class="form-group">
-            <label class="form-label">Nama Tagged</label>
-            <input type="text" name="name_tagged" class="form-control" placeholder="Nama dengan tag (opsional)" value="{{ old('name_tagged') }}">
-            @error('name_tagged') <small style="color: #ef4444;">{{ $message }}</small> @enderror
+            <label class="form-label">Nomor Paragraf pada Artikel</label>
+            <input type="number" name="par_num" class="form-control" placeholder="Nomor paragraf dalam artikel (opsional)" value="{{ old('par_num') }}" min="1">
+            @error('par_num') <small style="color: #ef4444;">{{ $message }}</small> @enderror
         </div>
 
         <hr style="margin: 2rem 0; border: none; border-top: 1px solid #e5e7eb;">

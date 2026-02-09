@@ -518,18 +518,24 @@
                             </div>
 
                             @if($lemma->wordRelations->count() > 0)
-                                <div class="result-label">Konteks Penggunaan:</div>
+                                <div class="result-label">Ditemukan dalam Artikel:</div>
                                 <div class="result-text">
                                     @php
                                         $contexts = $lemma->wordRelations
-                                            ->take(3)
+                                            ->take(5)
                                             ->pluck('article')
                                             ->filter()
                                             ->unique('id');
                                     @endphp
-                                    @foreach($contexts as $context)
-                                        • {{ $context->title ?? 'Artikel tanpa judul' }}<br>
+                                    @foreach($contexts as $index => $context)
+                                        <a href="{{ route('articles.show', $context) }}" 
+                                           style="color: #2563eb; text-decoration: none; font-weight: 500;">
+                                            {{ $context->title ?? 'Artikel tanpa judul' }}
+                                        </a>@if($index < $contexts->count() - 1) | @endif
                                     @endforeach
+                                    @if($articlesCount > 5)
+                                        <span style="color: var(--text-light);">dan {{ $articlesCount - 5 }} artikel lainnya</span>
+                                    @endif
                                 </div>
                             @endif
                         </div>

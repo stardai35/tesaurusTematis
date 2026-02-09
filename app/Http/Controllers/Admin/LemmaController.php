@@ -31,7 +31,10 @@ class LemmaController extends Controller
     public function create()
     {
         $labels = Label::all();
-        return view('admin.lemmas.create', compact('labels'));
+        $articles = \App\Models\Article::orderBy('title')->get();
+        $types = \App\Models\Type::orderBy('name')->get();
+        $wordClasses = \App\Models\WordClass::orderBy('name')->get();
+        return view('admin.lemmas.create', compact('labels', 'articles', 'types', 'wordClasses'));
     }
 
     /**
@@ -40,7 +43,7 @@ class LemmaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'label_id' => 'required|exists:label,id',
+            'label_id' => 'nullable|exists:label,id',
             'name' => 'required|string|max:255|unique:lemma,name',
             'name_tagged' => 'nullable|string|max:255',
         ]);
@@ -66,7 +69,10 @@ class LemmaController extends Controller
     public function edit(Lemma $lemma)
     {
         $labels = Label::all();
-        return view('admin.lemmas.edit', compact('lemma', 'labels'));
+        $articles = \App\Models\Article::orderBy('title')->get();
+        $types = \App\Models\Type::orderBy('name')->get();
+        $wordClasses = \App\Models\WordClass::orderBy('name')->get();
+        return view('admin.lemmas.edit', compact('lemma', 'labels', 'articles', 'types', 'wordClasses'));
     }
 
     /**
@@ -75,9 +81,8 @@ class LemmaController extends Controller
     public function update(Request $request, Lemma $lemma)
     {
         $validated = $request->validate([
-            'label_id' => 'required|exists:label,id',
+            'label_id' => 'nullable|exists:label,id',
             'name' => 'required|string|max:255|unique:lemma,name,' . $lemma->id,
-            'name_tagged' => 'nullable|string|max:255',
         ]);
 
         $lemma->update($validated);

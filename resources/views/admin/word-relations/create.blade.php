@@ -24,14 +24,18 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Lemma <span style="color: #ef4444;">*</span></label>
-                <select name="lemma_id" class="form-control" required>
-                    <option value="">- Pilih Lemma -</option>
-                    @foreach($lemmas as $lemma)
-                        <option value="{{ $lemma->id }}" @selected(old('lemma_id') == $lemma->id)>{{ $lemma->name }}</option>
-                    @endforeach
-                </select>
-                @error('lemma_id') <small style="color: #ef4444;">{{ $message }}</small> @enderror
+                    <label class="form-label">Lemma (boleh kosong / manual)</label>
+                    <select name="lemma_id" class="form-control">
+                        <option value="">- Pilih Lemma (opsional) -</option>
+                        @foreach($lemmas as $lemma)
+                            <option value="{{ $lemma->id }}" @selected(old('lemma_id') == $lemma->id)>{{ $lemma->name }}</option>
+                        @endforeach
+                    </select>
+                    <div style="margin: 0.5rem 0; text-align: center; color: #888;">atau</div>
+                    <input type="text" name="lemma_manual" class="form-control" placeholder="Tulis lemma baru (opsional)" value="{{ old('lemma_manual') }}">
+                    <small style="color: #6b7280;">Kosongkan jika memilih dari daftar di atas.</small>
+                    @error('lemma_id') <small style="color: #ef4444;">{{ $message }}</small> @enderror
+                    @error('lemma_manual') <small style="color: #ef4444;">{{ $message }}</small> @enderror
             </div>
         </div>
 
@@ -61,14 +65,15 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
             <div class="form-group">
-                <label class="form-label">Nomor Paragraf</label>
-                <input type="number" name="par_num" class="form-control" placeholder="Nomor paragraf" value="{{ old('par_num', 1) }}" min="1">
+                <label class="form-label">Nomor Paragraf pada Artikel</label>
+                <input type="number" name="par_num" class="form-control" placeholder="Nomor paragraf dalam artikel (opsional)" value="{{ old('par_num') }}" min="1">
+                <small style="color: #6b7280;">Bisa dikosongkan jika tidak relevan.</small>
                 @error('par_num') <small style="color: #ef4444;">{{ $message }}</small> @enderror
             </div>
 
             <div class="form-group">
                 <label class="form-label">Urutan Kata</label>
-                <input type="number" name="word_order" class="form-control" placeholder="Urutan kata" value="{{ old('word_order', 1) }}" min="1">
+                <input type="number" name="word_order" class="form-control" placeholder="Urutan kata" value="{{ old('word_order') }}" min="1">
                 @error('word_order') <small style="color: #ef4444;">{{ $message }}</small> @enderror
             </div>
         </div>

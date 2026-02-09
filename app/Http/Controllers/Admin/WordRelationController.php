@@ -52,7 +52,8 @@ class WordRelationController extends Controller
             'article_id' => 'required|exists:article,id',
             'wordclass_id' => 'required|exists:word_class,id',
             'type_id' => 'nullable|exists:type,id',
-            'lemma_id' => 'required|exists:lemma,id',
+            'lemma_id' => 'nullable|exists:lemma,id',
+            'lemma_manual' => 'nullable|string',
             'par_num' => 'nullable|integer|min:1',
             'word_order' => 'nullable|integer|min:1',
             'group_num' => 'nullable|integer|min:1',
@@ -64,6 +65,13 @@ class WordRelationController extends Controller
             'is_bold' => 'nullable|boolean',
             'relationship_type' => 'nullable|string',
         ]);
+
+        // Prioritaskan lemma_manual jika diisi
+        if (!empty($validated['lemma_manual'])) {
+            $lemma = Lemma::create(['name' => $validated['lemma_manual']]);
+            $validated['lemma_id'] = $lemma->id;
+        }
+        unset($validated['lemma_manual']);
 
         WordRelation::create($validated);
 
@@ -103,7 +111,8 @@ class WordRelationController extends Controller
             'article_id' => 'required|exists:article,id',
             'wordclass_id' => 'required|exists:word_class,id',
             'type_id' => 'nullable|exists:type,id',
-            'lemma_id' => 'required|exists:lemma,id',
+            'lemma_id' => 'nullable|exists:lemma,id',
+            'lemma_manual' => 'nullable|string',
             'par_num' => 'nullable|integer|min:1',
             'word_order' => 'nullable|integer|min:1',
             'group_num' => 'nullable|integer|min:1',
@@ -115,6 +124,12 @@ class WordRelationController extends Controller
             'is_bold' => 'nullable|boolean',
             'relationship_type' => 'nullable|string',
         ]);
+
+        if (!empty($validated['lemma_manual'])) {
+            $lemma = Lemma::create(['name' => $validated['lemma_manual']]);
+            $validated['lemma_id'] = $lemma->id;
+        }
+        unset($validated['lemma_manual']);
 
         $wordRelation->update($validated);
 

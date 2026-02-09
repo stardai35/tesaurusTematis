@@ -49,6 +49,14 @@
                     <th>Tipe</th>
                     <th>Par. Num</th>
                     <th>Word Order</th>
+                    <th>Group Num</th>
+                    <th>Meaning Group</th>
+                    <th>Deskripsi</th>
+                    <th>Superordinate</th>
+                    <th>Foreign Lang</th>
+                    <th>Lang Variant</th>
+                    <th>Bold</th>
+                    <th>Relasi Tipe</th>
                     <th style="width: 180px;">Aksi</th>
                 </tr>
             </thead>
@@ -61,6 +69,14 @@
                         <td>{{ $wr->type?->name ?? '-' }}</td>
                         <td>{{ $wr->par_num ?? '-' }}</td>
                         <td>{{ $wr->word_order ?? '-' }}</td>
+                        <td>{{ $wr->group_num ?? '-' }}</td>
+                        <td>{{ $wr->meaning_group ?? '-' }}</td>
+                        <td>{{ $wr->description ?? '-' }}</td>
+                        <td>@if($wr->is_superordinate) <span style="color:green;">Ya</span> @else Tidak @endif</td>
+                        <td>{{ $wr->foreign_language ?? '-' }}</td>
+                        <td>{{ $wr->language_variant ?? '-' }}</td>
+                        <td>@if($wr->is_bold) <span style="font-weight:bold;">Ya</span> @else Tidak @endif</td>
+                        <td>{{ $wr->relationshipType?->name ?? '-' }}</td>
                         <td>
                             <div class="table-actions">
                                 <a href="{{ route('admin.word-relations.show', $wr) }}" class="btn btn-sm btn-primary">Lihat</a>

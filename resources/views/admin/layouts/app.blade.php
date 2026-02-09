@@ -607,6 +607,7 @@
                 <li><a href="{{ route('admin.articles.index') }}" class="@if(str_starts_with(Route::current()->getName(), 'admin.articles')) active @endif">📄 Artikel</a></li>
                 <li><a href="{{ route('admin.categories.index') }}" class="@if(str_starts_with(Route::current()->getName(), 'admin.categories')) active @endif">🏷️ Kategori</a></li>
                 <li><a href="{{ route('admin.subcategories.index') }}" class="@if(str_starts_with(Route::current()->getName(), 'admin.subcategories')) active @endif">🏷️ Sub Kategori</a></li>
+                 <li><a href="{{ route('admin.lemmas.index') }}" class="@if(str_starts_with(Route::current()->getName(), 'admin.lemmas')) active @endif">📚 Kelola Lemma</a></li>
             </ul>
         </aside>
 

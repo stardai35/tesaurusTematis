@@ -25,14 +25,18 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Lemma <span style="color: #ef4444;">*</span></label>
-                <select name="lemma_id" class="form-control" required>
-                    <option value="">- Pilih Lemma -</option>
+                <label class="form-label">Lemma (boleh kosong / manual)</label>
+                <select name="lemma_id" class="form-control">
+                    <option value="">- Pilih Lemma (opsional) -</option>
                     @foreach($lemmas as $lemma)
-                        <option value="{{ $lemma->id }}" @selected($wordRelation->lemma_id == $lemma->id)>{{ $lemma->name }}</option>
+                        <option value="{{ $lemma->id }}" @selected(old('lemma_id', $wordRelation->lemma_id) == $lemma->id)>{{ $lemma->name }}</option>
                     @endforeach
                 </select>
+                <div style="margin: 0.5rem 0; text-align: center; color: #888;">atau</div>
+                <input type="text" name="lemma_manual" class="form-control" placeholder="Tulis lemma baru (opsional)" value="{{ old('lemma_manual') }}">
+                <small style="color: #6b7280;">Kosongkan jika memilih dari daftar di atas.</small>
                 @error('lemma_id') <small style="color: #ef4444;">{{ $message }}</small> @enderror
+                @error('lemma_manual') <small style="color: #ef4444;">{{ $message }}</small> @enderror
             </div>
         </div>
 

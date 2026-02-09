@@ -12,12 +12,11 @@
 </div>
 
 <div class="card" style="margin-bottom: 2rem;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 2rem;">
         <div>
             <h3 style="margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase;">Nama Lemma</h3>
             <p style="margin-bottom: 0; font-size: 1rem; color: #1f2937;"><strong>{{ $lemma->name }}</strong></p>
         </div>
-
         <div>
             <h3 style="margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase;">Label</h3>
             <p style="margin-bottom: 0; font-size: 1rem; color: #1f2937;">
@@ -27,6 +26,14 @@
                     <span style="color: #9ca3af;">-</span>
                 @endif
             </p>
+        </div>
+        <div>
+            <h3 style="margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase;">Kelas Kata</h3>
+            <p style="margin-bottom: 0; font-size: 1rem; color: #1f2937;">{{ $lemma->wordClass?->name ?? '-' }}</p>
+        </div>
+        <div>
+            <h3 style="margin-bottom: 1rem; font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase;">Tipe</h3>
+            <p style="margin-bottom: 0; font-size: 1rem; color: #1f2937;">{{ $lemma->type?->name ?? '-' }}</p>
         </div>
     </div>
 
